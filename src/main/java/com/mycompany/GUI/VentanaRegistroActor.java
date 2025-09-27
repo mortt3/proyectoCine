@@ -35,6 +35,11 @@ public class VentanaRegistroActor extends javax.swing.JFrame {
         } catch (MyException e) {
             JOptionPane.showMessageDialog(this, "Error al inicializar gestor de actores");
         }
+        limpiar();
+
+    }
+
+    private void limpiar() {
         txtNombre.setText("Nombre de actor");
         txtNombre.addFocusListener(new FocusAdapter() {
             @Override
@@ -67,7 +72,6 @@ public class VentanaRegistroActor extends javax.swing.JFrame {
                 }
             }
         });
-
     }
 
     /**
@@ -181,7 +185,11 @@ public class VentanaRegistroActor extends javax.swing.JFrame {
 
             JOptionPane.showMessageDialog(this, "Actor registrado con éxito: " + id);
 
-            salir(); // volver a la ventana principal
+            int confirmar = JOptionPane.showConfirmDialog(this, "¿Desas salir agregar otro actor?", "", JOptionPane.YES_NO_OPTION);
+            if (confirmar == JOptionPane.YES_OPTION) {
+                salir();
+            }else limpiar();
+
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "La edad debe ser un número entero.");
         } catch (MyException e) {

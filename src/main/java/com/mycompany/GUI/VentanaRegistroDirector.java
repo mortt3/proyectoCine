@@ -33,8 +33,13 @@ public class VentanaRegistroDirector extends javax.swing.JFrame {
         try {
             gestorDirectores = new GestorDirectores();
         } catch (MyException e) {
-            JOptionPane.showMessageDialog(this, "Error al inicializar gestor de actores");
+            JOptionPane.showMessageDialog(this, "Error al inicializar gestor de directores");
         }
+        limpiar();
+
+    }
+
+    private void limpiar() {
         txtNombre.setText("Nombre de director");
         txtNombre.addFocusListener(new FocusAdapter() {
             @Override
@@ -51,11 +56,11 @@ public class VentanaRegistroDirector extends javax.swing.JFrame {
                 }
             }
         });
-        txtApellido.setText("Edad del actor");
+        txtApellido.setText("apellido del director");
         txtApellido.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (txtApellido.getText().equals("Edad del director")) {
+                if (txtApellido.getText().equals("apellido del director")) {
                     txtApellido.setText("");
                 }
             }
@@ -63,11 +68,10 @@ public class VentanaRegistroDirector extends javax.swing.JFrame {
             @Override
             public void focusLost(FocusEvent e) {
                 if (txtApellido.getText().isEmpty()) {
-                    txtApellido.setText("Edad del director");
+                    txtApellido.setText("apellido del director");
                 }
             }
         });
-
     }
 
     /**
@@ -180,8 +184,11 @@ public class VentanaRegistroDirector extends javax.swing.JFrame {
             gestorDirectores.aniadirDirector(dc); //se guardan los acores
 
             JOptionPane.showMessageDialog(this, "director registrado con éxito: " + id);
-
-            salir(); // volver a la ventana principal
+            int confirmar = JOptionPane.showConfirmDialog(this, "¿Desea agregar mas directores?","",JOptionPane.YES_NO_OPTION);
+            if (confirmar == JOptionPane.YES_OPTION) {
+                salir();
+            }else limpiar();
+        
 
         } catch (MyException e) {
             JOptionPane.showMessageDialog(this, "Error al guardar el director: " + e.getMessage());

@@ -53,7 +53,6 @@ public class IdGenerator  {
             case "director" -> "di_";
             default -> "";
         };
-
         return String.format("%s%05d", prefix, nextId);
     }
 }

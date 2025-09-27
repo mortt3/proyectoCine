@@ -184,7 +184,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     private void btnRegistrarDirectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarDirectorActionPerformed
         // TODO add your handling code here:
-        
+        VentanaRegistroDirector vRD = new VentanaRegistroDirector(this);
+        this.setVisible(false);
     }//GEN-LAST:event_btnRegistrarDirectorActionPerformed
 
     private void botonListadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonListadoActionPerformed

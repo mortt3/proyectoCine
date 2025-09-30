@@ -185,8 +185,8 @@ public class VentanaRegistroActor extends javax.swing.JFrame {
 
             JOptionPane.showMessageDialog(this, "Actor registrado con éxito: " + id);
 
-            int confirmar = JOptionPane.showConfirmDialog(this, "¿Desas salir agregar otro actor?", "", JOptionPane.YES_NO_OPTION);
-            if (confirmar == JOptionPane.YES_OPTION) {
+            int confirmar = JOptionPane.showConfirmDialog(this, "¿Desas agregar a otro actor?", "", JOptionPane.YES_NO_OPTION);
+            if (confirmar == JOptionPane.NO_OPTION) {
                 salir();
             }else limpiar();
 

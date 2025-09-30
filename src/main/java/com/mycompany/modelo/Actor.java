@@ -11,8 +11,7 @@ import java.io.Serializable;
  * @author jorge
  */
 public class Actor implements Serializable {
-    private String idActor;
-    private String nombre;
+    private String idActor , nombre;
     private int edad;
 
     public Actor(String idActor, String nombre, int edad) {

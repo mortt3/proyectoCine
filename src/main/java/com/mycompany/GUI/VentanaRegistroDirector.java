@@ -185,7 +185,7 @@ public class VentanaRegistroDirector extends javax.swing.JFrame {
 
             JOptionPane.showMessageDialog(this, "director registrado con éxito: " + id);
             int confirmar = JOptionPane.showConfirmDialog(this, "¿Desea agregar mas directores?","",JOptionPane.YES_NO_OPTION);
-            if (confirmar == JOptionPane.YES_OPTION) {
+            if (confirmar == JOptionPane.NO_OPTION) {
                 salir();
             }else limpiar();
         

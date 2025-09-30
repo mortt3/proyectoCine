@@ -17,23 +17,23 @@ import java.util.Map;
  *
  * @author jorge
  */
-public class IdGenerator  {
+public class IdGenerator {
 
     private static final String FILE_NAME = "ids.dat";
     private Map<String, Integer> ids;
-
+    
     public IdGenerator() {
-        ids = loadIds();
+        ids = cargarIds();
     }
 
-    private Map<String, Integer> loadIds() {
+    private Map<String, Integer> cargarIds() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
             return (Map<String, Integer>) ois.readObject();
         } catch (Exception e) {
             return new HashMap<>();
         }
     }
-
+     
     private void saveIds() throws MyException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             oos.writeObject(ids);
@@ -47,12 +47,16 @@ public class IdGenerator  {
         ids.put(tipo, nextId);
         saveIds();
 
-        String prefix = switch (tipo) {
-            case "actor" -> "ac_";
-            case "pelicula" -> "pi_";
-            case "director" -> "di_";
-            default -> "";
+        String prefijo = switch (tipo) {
+            case "actor" ->
+                "ac_";
+            case "pelicula" ->
+                "pi_";
+            case "director" ->
+                "di_";
+            default ->
+                "";
         };
-        return String.format("%s%05d", prefix, nextId);
+        return String.format("%s%05d", prefijo, nextId);
     }
 }

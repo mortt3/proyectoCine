@@ -11,9 +11,7 @@ import java.io.Serializable;
  * @author jorge
  */
 public class Director implements Serializable {
-    private String idDirector;
-    private String nombre;
-    private String apellido;
+    private String idDirector , nombre, apellido;
 
     public Director(String idDirector, String nombre, String apellido) {
         this.idDirector = idDirector;

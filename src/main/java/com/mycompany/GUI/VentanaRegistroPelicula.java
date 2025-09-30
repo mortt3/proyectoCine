@@ -6,8 +6,14 @@ package com.mycompany.GUI;
 
 import com.mycompany.excepciones.MyException;
 import com.mycompany.gestor.GestorDirectores;
+import com.mycompany.gestor.GestorPeliculas;
 import com.mycompany.modelo.Actor;
 import com.mycompany.modelo.Director;
+import com.mycompany.modelo.Pelicula;
+import com.mycompany.util.IdGenerator;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
@@ -17,32 +23,65 @@ import javax.swing.JOptionPane;
  * @author jorge
  */
 public class VentanaRegistroPelicula extends javax.swing.JFrame {
+
     private VentanaPrincipal vP;
+    private GestorPeliculas gestorPeli;
+    private IdGenerator idGen;
+    private List<Actor> actoresSelccionados = new ArrayList<>();
+    private List<Director> directoresDisponibles = new ArrayList<>();
+
     /**
      * Creates new form VentanaRegistroPelicula
      */
     public VentanaRegistroPelicula(VentanaPrincipal vP) {
-        this.vP = vP;
-        initComponents();
-        cargarDirectores();
-        this.setVisible(true);
+        try {
+            this.vP = vP;
+            initComponents();
+            cargarDirectores();
+            limpiar();
+            idGen = new IdGenerator();
+            gestorPeli = new GestorPeliculas();
+            this.setVisible(true);
+        } catch (MyException ex) {
+            JOptionPane.showMessageDialog(this, "Error al inicializar gestor de directores");
+        }
+
+    }
+
+    private void limpiar() {
+        txtTitulo.setText("Titulo de la peli");
+        txtTitulo.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (txtTitulo.getText().equals("Titulo de la peli")) {
+                    txtTitulo.setText("");
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (txtTitulo.getText().isEmpty()) {
+                    txtTitulo.setText("Titulo de la peli");
+                }
+            }
+        });
     }
 
     private void cargarDirectores() {
-    try {
-        GestorDirectores gestor = new GestorDirectores();
-        List<Director> directores = gestor.getDirectores();
-
-        comboDirector.removeAllItems(); // Limpia el combo
-
-        for (Director d : directores) {
-            comboDirector.addItem(d.getNombre());
+        try {
+            GestorDirectores gestor = new GestorDirectores();
+            directoresDisponibles = gestor.getDirectores();
+            comboDirector.removeAllItems();
+            for (Director d : directoresDisponibles) {
+                comboDirector.addItem(d);
+            }
+        } catch (MyException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los directores.");
         }
-    } catch (MyException ex) {
-        JOptionPane.showMessageDialog(this, "Error al cargar los directores.");
     }
-}
+
     public void setActoresSeleccionados(List<Actor> actores) {
+        actoresSelccionados = actores;
         if (actores.isEmpty()) {
             listaActortes.setText("Seleccionados: Ninguno");
             return;
@@ -66,8 +105,6 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         txtTitulo = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        txtAnio = new javax.swing.JTextField();
         comboGenero = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -88,15 +125,18 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
 
         txtTitulo.setText("Titulo de la peli");
 
-        jLabel2.setText("Año:");
-
-        txtAnio.setText("Año de la peli");
-
         comboGenero.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Acción", "Comedia", "Drama", "Terror", "ciencia Ficcion" }));
 
         jLabel3.setText("Genero:");
 
         jLabel4.setText("Director:");
+
+        comboDirector.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        comboDirector.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboDirectorActionPerformed(evt);
+            }
+        });
 
         jButton1.setText("Agregar actores");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -106,6 +146,11 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
         });
 
         btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarActionPerformed(evt);
+            }
+        });
 
         btnSalir.setText("Salir sin guardar");
         btnSalir.addActionListener(new java.awt.event.ActionListener() {
@@ -119,40 +164,34 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(listaActortes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(listaActortes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(btnGuardar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnSalir)
+                        .addGap(23, 23, 23))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel1)
-                                            .addComponent(jLabel2)
-                                            .addComponent(jLabel3))
-                                        .addGap(18, 18, 18)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(txtAnio, javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(comboGenero, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(txtTitulo)))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel4)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(comboDirector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addComponent(jLabel1)
+                                .addGap(25, 25, 25)
+                                .addComponent(txtTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLabel3)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(comboGenero, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addComponent(jLabel4)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(comboDirector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(42, 42, 42)
+                                .addGap(36, 36, 36)
                                 .addComponent(jButton1)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnGuardar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnSalir)
-                .addGap(29, 29, 29))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,10 +200,6 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(txtTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(txtAnio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(comboGenero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -176,13 +211,15 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jButton1)
                 .addGap(18, 18, 18)
-                .addComponent(listaActortes, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(listaActortes, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnGuardar)
                     .addComponent(btnSalir))
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
+
+        comboDirector.getAccessibleContext().setAccessibleDescription("");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -210,9 +247,45 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
         // TODO add your handling code here:
-        int confirmar = JOptionPane.showConfirmDialog(this, "desas salir sin guardar cambios?","",JOptionPane.YES_NO_OPTION);
-        if(confirmar == JOptionPane.YES_OPTION) salir();
+        int confirmar = JOptionPane.showConfirmDialog(this, "desas salir sin guardar cambios?", "", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION)
+            salir();
     }//GEN-LAST:event_btnSalirActionPerformed
+
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        // TODO add your handling code here:
+        try {
+            String id = idGen.generarId("pelicula");
+            String titulo = txtTitulo.getText();
+            String genero = (String) comboGenero.getSelectedItem();
+            Director director = (Director) comboDirector.getSelectedItem();
+
+            if (actoresSelccionados.isEmpty()) {
+                JOptionPane.showConfirmDialog(this, "Debes selecionar al menos a 1 actor", "", JOptionPane.CLOSED_OPTION);
+            } else if (titulo.equals("Titulo de la peli")) {
+                JOptionPane.showConfirmDialog(this, "Introduce un titulo a la pelicula");
+            } else {
+                Pelicula p = new Pelicula(id, titulo, genero, director, actoresSelccionados);
+                gestorPeli.aniadirPelicula(p, directoresDisponibles, actoresSelccionados);
+                JOptionPane.showMessageDialog(this, "pelicula registrada con éxito: " + id);
+                int confirmar = JOptionPane.showConfirmDialog(this, "¿Deseas agregamr mas peliculas?", "", JOptionPane.YES_NO_OPTION);
+                if (confirmar == JOptionPane.NO_OPTION) {
+                    salir();
+                } else {
+                    limpiar();
+                }
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "anio debe de ser un numero, por ejemplo 2002");
+        } catch (MyException ex) {
+            JOptionPane.showMessageDialog(this, ex);
+        }
+
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void comboDirectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDirectorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboDirectorActionPerformed
 
     private void salir() {
         // TODO add your handling code here:
@@ -223,16 +296,14 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnSalir;
-    private javax.swing.JComboBox<String> comboDirector;
+    private javax.swing.JComboBox<Object> comboDirector;
     private javax.swing.JComboBox<String> comboGenero;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel listaActortes;
-    private javax.swing.JTextField txtAnio;
     private javax.swing.JTextField txtTitulo;
     // End of variables declaration//GEN-END:variables
 }

@@ -12,9 +12,7 @@ import java.util.List;
  * @author jorge
  */
 public class Pelicula implements Serializable {
-    private String idPeli;
-    private String titulo;
-    private String genero;
+    private String idPeli,titulo,genero;
     private Director director;
     private List<Actor> actores;
 

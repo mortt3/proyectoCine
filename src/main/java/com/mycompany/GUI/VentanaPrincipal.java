@@ -4,11 +4,16 @@
  */
 package com.mycompany.GUI;
 
+import com.mycompany.excepciones.MyException;
+import com.mycompany.gestor.*;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.File;
 import static java.lang.System.exit;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
@@ -17,6 +22,9 @@ import javax.swing.JOptionPane;
  */
 public class VentanaPrincipal extends javax.swing.JFrame {
 
+    private GestorDirectores gestorDirectores;
+    private GestorActores gestorActores;
+    private GestorPeliculas gestorPeliculas;
 
     /**
      * Creates new form Principal
@@ -24,7 +32,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     public VentanaPrincipal() {
         initComponents();
         Image icono = Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("imagenes\\movie-film_2980226.png"));
-        setIconImage(icono);             
+        setIconImage(icono);
+        try {
+            gestorActores = new GestorActores();
+            gestorDirectores = new GestorDirectores();
+            gestorPeliculas = new GestorPeliculas();
+        } catch (MyException e) {
+            JOptionPane.showMessageDialog(this, "Error al inicializar gestores: " + e.getMessage());
+        }
     }
 
     /**
@@ -40,11 +55,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         btnRegistrarActor = new javax.swing.JButton();
         btnRegistrarDirector = new javax.swing.JButton();
         botonAddPelicula = new javax.swing.JButton();
-        botonModificar = new javax.swing.JButton();
         botonBorrar = new javax.swing.JButton();
         botonListado = new javax.swing.JButton();
         botonFin = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        btnImportar = new javax.swing.JButton();
+        btnExportar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FILM LOS ENLACES");
@@ -76,21 +92,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
 
-        botonModificar.setText("MODIFICAR PELÍCULA");
-        botonModificar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonModificarActionPerformed(evt);
-            }
-        });
-
-        botonBorrar.setText("BORRAR PELÍCULA");
+        botonBorrar.setText("Borrar Pelicula");
         botonBorrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonBorrarActionPerformed(evt);
             }
         });
 
-        botonListado.setText("LISTADO PELÍCULAS");
+        botonListado.setText("LISTADO");
         botonListado.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonListadoActionPerformed(evt);
@@ -106,6 +115,20 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/movie-film_2980226.png"))); // NOI18N
 
+        btnImportar.setText("importar");
+        btnImportar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImportarActionPerformed(evt);
+            }
+        });
+
+        btnExportar.setText("Exportar");
+        btnExportar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -114,37 +137,41 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addGap(41, 41, 41)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(botonAddPelicula, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(botonFin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(botonModificar, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
-                        .addComponent(botonBorrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnRegistrarDirector, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnRegistrarActor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(botonListado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addGap(17, 17, 17)
-                            .addComponent(jLabel1))))
+                    .addComponent(botonFin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(botonBorrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnRegistrarDirector, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnRegistrarActor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(botonListado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(jLabel1))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(btnImportar, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnExportar, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)))
                 .addContainerGap(39, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(22, 22, 22)
                 .addComponent(btnRegistrarActor)
                 .addGap(18, 18, 18)
                 .addComponent(btnRegistrarDirector)
                 .addGap(18, 18, 18)
-                .addComponent(botonAddPelicula, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(botonModificar)
+                .addComponent(botonAddPelicula)
                 .addGap(18, 18, 18)
                 .addComponent(botonBorrar)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addComponent(botonListado)
                 .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnImportar)
+                    .addComponent(btnExportar))
+                .addGap(18, 18, 18)
                 .addComponent(botonFin)
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addGap(24, 24, 24))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -171,8 +198,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         // TODO add your handling code here:
         VentanaRegistroActor vRA = new VentanaRegistroActor(this);
         this.setVisible(false);
-        
-        
+
+
     }//GEN-LAST:event_btnRegistrarActorActionPerformed
 
     private void botonFinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonFinActionPerformed
@@ -180,7 +207,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_botonFinActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-     
+
     }//GEN-LAST:event_formWindowClosing
 
     private void btnRegistrarDirectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarDirectorActionPerformed
@@ -191,25 +218,132 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     private void botonListadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonListadoActionPerformed
         // TODO add your handling code here:
-       
+        VentanaListas vL = new VentanaListas(this);
+        this.setVisible(false);
     }//GEN-LAST:event_botonListadoActionPerformed
 
     private void botonBorrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonBorrarActionPerformed
         // TODO add your handling code here:
-
+        VentanaBorrarPeli vBP = new VentanaBorrarPeli(this);
+        this.setVisible(false);
     }//GEN-LAST:event_botonBorrarActionPerformed
-
-    private void botonModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonModificarActionPerformed
-        // TODO add your handling code here:
-   
-    }//GEN-LAST:event_botonModificarActionPerformed
 
     private void botonAddPeliculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAddPeliculaActionPerformed
         // TODO add your handling code here:
         VentanaRegistroPelicula vRP = new VentanaRegistroPelicula(this);
         this.setVisible(false);
-       
+
     }//GEN-LAST:event_botonAddPeliculaActionPerformed
+
+    private void btnImportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportarActionPerformed
+        // TODO add your handling code here:
+        String[] opciones = {"Actores", "Directores", "Películas"};
+        int seleccion = JOptionPane.showOptionDialog(this,
+                "¿Qué deseas importar?",
+                "",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]);
+
+        if (seleccion == -1) {
+            return; // usuario cerró el diálogo
+        }
+        JFileChooser chooser = new JFileChooser();
+        int fileSeleccion = chooser.showOpenDialog(this);
+        if (fileSeleccion != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File archivo = chooser.getSelectedFile();
+
+        try {
+            switch (seleccion) {
+                case 0: // Actores
+                    gestorActores.importarActores(archivo.getAbsolutePath());
+                    JOptionPane.showMessageDialog(this, "Actores importados correctamente.");
+                    break;
+
+                case 1: // Directores
+                    gestorDirectores.importarDirectores(archivo.getAbsolutePath());
+                    JOptionPane.showMessageDialog(this, "Directores importados correctamente.");
+                    break;
+
+                case 2: // Películas
+                    gestorPeliculas.importarPeliculas(
+                            archivo.getAbsolutePath(),
+                            gestorDirectores,
+                            gestorActores
+                    );
+                    JOptionPane.showMessageDialog(this, "Películas importadas correctamente.");
+                    break;
+
+                default:
+                    JOptionPane.showMessageDialog(this, "Selección no válida.");
+                    break;
+            }
+
+        } catch (MyException e) {
+            JOptionPane.showMessageDialog(this, "Error al importar: " + e.getMessage());
+        } catch (Exception e) {
+            // Captura cualquier otro error no previsto
+            JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage());
+        }
+
+    }//GEN-LAST:event_btnImportarActionPerformed
+
+    private void btnExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarActionPerformed
+        // TODO add your handling code here:
+        String[] opciones = {"Actores", "Directores", "Películas"};
+        int seleccion = JOptionPane.showOptionDialog(this,
+                "¿Qué deseas exportar?",
+                "",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]);
+
+        if (seleccion == -1) {
+            return; // usuario cerró el diálogo
+        }
+
+        JFileChooser chooser = new JFileChooser();
+        int fileSeleccion = chooser.showSaveDialog(this);
+        if (fileSeleccion != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File archivo = chooser.getSelectedFile();
+
+        try {
+            switch (seleccion) {
+                case 0: // Actores
+                    gestorActores.exportarActores(archivo.getAbsolutePath());
+                    JOptionPane.showMessageDialog(this, "Actores exportados correctamente.");
+                    break;
+
+                case 1: // Directores
+                    gestorDirectores.exportarDirectores(archivo.getAbsolutePath());
+                    JOptionPane.showMessageDialog(this, "Directores exportados correctamente.");
+                    break;
+
+                case 2: // Películas
+                    gestorPeliculas.exportarPeliculas(archivo.getAbsolutePath());
+                    JOptionPane.showMessageDialog(this, "Películas exportadas correctamente.");
+                    break;
+
+                default:
+                    JOptionPane.showMessageDialog(this, "Selección no válida.");
+                    break;
+            }
+
+        } catch (MyException e) {
+            JOptionPane.showMessageDialog(this, "Error al exportar: " + e.getMessage());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error inesperado: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnExportarActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -247,7 +381,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton botonBorrar;
     private javax.swing.JButton botonFin;
     private javax.swing.JButton botonListado;
-    private javax.swing.JButton botonModificar;
+    private javax.swing.JButton btnExportar;
+    private javax.swing.JButton btnImportar;
     private javax.swing.JButton btnRegistrarActor;
     private javax.swing.JButton btnRegistrarDirector;
     private javax.swing.JLabel jLabel1;

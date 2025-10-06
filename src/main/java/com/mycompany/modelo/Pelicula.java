@@ -4,6 +4,7 @@
  */
 package com.mycompany.modelo;
 
+import com.mycompany.excepciones.MyException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,16 +13,24 @@ import java.util.List;
  * @author jorge
  */
 public class Pelicula implements Serializable {
-    private String idPeli,titulo,genero;
+
+    private String idPeli, titulo, genero;
     private Director director;
     private List<Actor> actores;
 
-    public Pelicula(String idPeli, String titulo, String genero, Director director, List<Actor> actores) {
+    public Pelicula(String idPeli, String titulo, String genero, Director director, List<Actor> actores) throws MyException {
         this.idPeli = idPeli;
-        this.titulo = titulo;
+        this.titulo = validarTitulo(titulo);
         this.genero = genero;
         this.director = director;
         this.actores = actores;
+    }
+
+    private String validarTitulo(String titulo) throws MyException {
+        if (!titulo.matches("[a-zA-Z0-9ñáéíóúÁÉÍÓÚ:/\\\"-_ç() ]{1,100}")) {
+            throw new MyException("el titulo introducido es incorrecto");
+        }
+        return titulo;
     }
 
     public String getIdPeli() {
@@ -36,8 +45,8 @@ public class Pelicula implements Serializable {
         return titulo;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
+    public void setTitulo(String titulo) throws MyException {
+        this.titulo = validarTitulo(titulo);
     }
 
     public String getGenero() {
@@ -63,12 +72,31 @@ public class Pelicula implements Serializable {
     public void setActores(List<Actor> actores) {
         this.actores = actores;
     }
-    
+
     @Override
     public String toString() {
-        return idPeli + " - " + titulo + " (" + genero + ") | Director: " 
-               + director.getNombre() + " " + director.getApellido()
-               + " | Actores: " + actores;
+        return idPeli + " - " + titulo + " (" + genero + ") | Director: "
+                + director.getNombre() + " " + director.getApellido()
+                + " | Actores: " + actores;
     }
-    
+
+    // compara dos películas por su ID.
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        Pelicula other = (Pelicula) obj;
+        return idPeli != null && idPeli.equals(other.idPeli);
+    }
+    //Genera el hash code basado en el id de la película
+    @Override
+    public int hashCode() {
+        return idPeli != null ? idPeli.hashCode() : 0;
+    }
+
 }

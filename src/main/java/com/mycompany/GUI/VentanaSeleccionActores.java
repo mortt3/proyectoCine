@@ -9,6 +9,8 @@ import com.mycompany.gestor.GestorActores;
 import com.mycompany.modelo.Actor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -79,7 +81,15 @@ public class VentanaSeleccionActores extends javax.swing.JFrame {
             new String [] {
                 "id", "nombre", "edad"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         jLabel1.setText("Seleciona los actores");
@@ -157,13 +167,17 @@ public class VentanaSeleccionActores extends javax.swing.JFrame {
         List<Actor> seleccionados = new ArrayList<>();
 
         for (int fila : filasSeleccionadas) {
-            int modeloIndex = jTable1.convertRowIndexToModel(fila);
-            String id = (String) modeloTabla.getValueAt(modeloIndex, 0);
-            String nombre = (String) modeloTabla.getValueAt(modeloIndex, 1);
-            int edad = (int) modeloTabla.getValueAt(modeloIndex, 2);
-
-            Actor a = new Actor(id, nombre,edad); // o como tengas tu constructor
-            seleccionados.add(a);
+            try {
+                int modeloIndex = jTable1.convertRowIndexToModel(fila);
+                String id = (String) modeloTabla.getValueAt(modeloIndex, 0);
+                String nombre = (String) modeloTabla.getValueAt(modeloIndex, 1);
+                int edad = (int) modeloTabla.getValueAt(modeloIndex, 2);
+                
+                Actor a = new Actor(id, nombre,edad);
+                seleccionados.add(a);
+            } catch (MyException ex) {
+                JOptionPane.showMessageDialog(this, ex);
+            }
         }
 
         vRP.setActoresSeleccionados(seleccionados);

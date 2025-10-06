@@ -12,24 +12,22 @@ import java.util.List;
  *
  * @author jorge
  */
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
 public class GestorFicheros<T> {
-
     private final File fichero;
     private static final File CARPETAINICIAL = new File("src", "main");
     private static final File CARPETA = new File(CARPETAINICIAL, "Ficheros");
 
+
     public GestorFicheros(String nombreFichero) throws MyException {
+        // Asegura que la carpeta exista (aunque el método crearCarpeta también lo hace explícitamente)
         if (!CARPETA.exists()) {
-            crearCarpeta();
+            // Se puede usar crearCarpeta() aquí si se desea.
         }
+
         this.fichero = new File(CARPETA, nombreFichero);
 
         try {
+            // Si el fichero no existe, se crea y se inicializa con una lista vacía
             if (!fichero.exists()) {
                 fichero.createNewFile();
                 guardarLista(new ArrayList<>());
@@ -38,12 +36,17 @@ public class GestorFicheros<T> {
             throw new MyException("Error creando fichero: " + fichero.getAbsolutePath());
         }
     }
-
     public static void crearCarpeta() {
         CARPETA.mkdirs();
     }
 
+    /**
+     * Lee la lista de objetos desde el fichero.
+     * @return Lista de objetos de tipo T leída desde el archivo
+     * @throws MyException si ocurre un error al leer el fichero
+     */
     public List<T> leerLista() throws MyException {
+        // Si el fichero no existe o está vacío, se devuelve una lista vacía
         if (!fichero.exists() || fichero.length() == 0) {
             return new ArrayList<>();
         }
@@ -51,7 +54,7 @@ public class GestorFicheros<T> {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichero))) {
             Object obj = ois.readObject();
             if (obj instanceof List<?>) {
-                return (List<T>) obj;
+                return (List<T>) obj; 
             } else {
                 return new ArrayList<>();
             }
@@ -62,6 +65,11 @@ public class GestorFicheros<T> {
         }
     }
 
+    /**
+     * Guarda una lista completa de objetos en el fichero.
+     * @param lista Lista de objetos a guardar
+     * @throws MyException
+     */
     public void guardarLista(List<T> lista) throws MyException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fichero))) {
             oos.writeObject(lista);
@@ -70,12 +78,22 @@ public class GestorFicheros<T> {
         }
     }
 
+    /**
+     * Añade un objeto a la lista almacenada y actualiza el fichero.
+     * @param obj Objeto
+     * @throws MyException 
+     */
     public void aniadir(T obj) throws MyException {
         List<T> lista = leerLista();
         lista.add(obj);
         guardarLista(lista);
     }
 
+    /**
+     * Elimina un objeto de la lista almacenada, si existe.
+     * @param obj Objeto a eliminar
+     * @throws MyException 
+     */
     public void borrar(T obj) throws MyException {
         List<T> lista = leerLista();
         if (lista.remove(obj)) {
@@ -85,6 +103,12 @@ public class GestorFicheros<T> {
         }
     }
 
+    /**
+     * Modifica un objeto existente en la lista, reemplazándolo por uno nuevo.
+     * @param antiguo Objeto a reemplazar
+     * @param nuevo Objeto nuevo que sustituye al antiguo
+     * @throws MyException 
+     */
     public void modificar(T antiguo, T nuevo) throws MyException {
         List<T> lista = leerLista();
         int index = lista.indexOf(antiguo);
@@ -96,3 +120,4 @@ public class GestorFicheros<T> {
         }
     }
 }
+

@@ -56,11 +56,9 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="botonAddPelicula" pref="144" max="32767" attributes="0"/>
                       <Component id="botonFin" max="32767" attributes="0"/>
                       <Component id="botonBorrar" alignment="0" max="32767" attributes="0"/>
-                      <Component id="btnRegistrarDirector" alignment="0" max="32767" attributes="0"/>
-                      <Component id="btnRegistrarActor" alignment="0" max="32767" attributes="0"/>
+                      <Component id="btnRegistrar" alignment="0" pref="144" max="32767" attributes="0"/>
                       <Component id="botonListado" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
@@ -81,12 +79,8 @@
               <Group type="102" alignment="0" attributes="0">
                   <Component id="jLabel1" min="-2" pref="97" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
-                  <Component id="btnRegistrarActor" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="btnRegistrarDirector" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="botonAddPelicula" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="btnRegistrar" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="100" max="-2" attributes="0"/>
                   <Component id="botonBorrar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="18" max="32767" attributes="0"/>
                   <Component id="botonListado" min="-2" max="-2" attributes="0"/>
@@ -103,28 +97,12 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JButton" name="btnRegistrarActor">
+        <Component class="javax.swing.JButton" name="btnRegistrar">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Registrar Actor"/>
+            <Property name="text" type="java.lang.String" value="Registrar"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegistrarActorActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JButton" name="btnRegistrarDirector">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Registrar Director"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegistrarDirectorActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JButton" name="botonAddPelicula">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Insertar Pelicula"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonAddPeliculaActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnRegistrarActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="botonBorrar">

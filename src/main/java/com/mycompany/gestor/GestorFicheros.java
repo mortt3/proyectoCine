@@ -5,6 +5,7 @@
 package com.mycompany.gestor;
 
 import com.mycompany.excepciones.MyException;
+import com.mycompany.modelo.Director;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +118,39 @@ public class GestorFicheros<T> {
             guardarLista(lista);
         } else {
             throw new MyException("No se encontró el objeto a modificar: " + antiguo);
+        }
+    }
+    
+     /**
+     * Importa actores binario
+     *
+     * @param ruta ruta del archivo de origen
+     * @throws MyException
+     */
+    public void importarBinario(String ruta) throws MyException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ruta))) {
+            Object obj = ois.readObject();
+                if (obj instanceof List<?>) {
+                    guardarLista((List<T>) obj);
+                } else {
+                throw new MyException("El archivo no contiene una lista de directores válida.");
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            throw new MyException("Error al importar directores en binario desde: " + ruta);
+        }
+    }
+
+    /**
+     * Exporta la lista de actores en binario
+     *
+     * @param ruta ruta del archivo de destino 
+     * @throws MyException
+     */
+    public void exportarBinario(String ruta) throws MyException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ruta))) {
+            oos.writeObject(leerLista());
+        } catch (IOException e) {
+            throw new MyException("Error al exportar directores en binario: " + ruta);
         }
     }
 }

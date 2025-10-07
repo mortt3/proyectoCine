@@ -53,7 +53,7 @@ public class GestorPeliculas {
 
         gestor.aniadir(p);
     }
-    
+
     public void borrarPelicula(Pelicula p) throws MyException {
         gestor.borrar(p);
     }
@@ -63,7 +63,6 @@ public class GestorPeliculas {
     }
 
     // litado de películas almacenadas.
-
     public List<Pelicula> getPeliculas() throws MyException {
         return gestor.leerLista();
     }
@@ -169,5 +168,25 @@ public class GestorPeliculas {
         } catch (IOException e) {
             throw new MyException("Error al exportar películas a: " + ruta);
         }
+    }
+
+    /**
+     * Exportar películas a un archivo de texto en formato binario.
+     *
+     * @param ruta ruta del archivo
+     * @throws MyException
+     */
+    public void importarPeliculasBinario(String ruta) throws MyException {
+        gestor.importarBinario(ruta);
+    }
+
+    /**
+     * Importar películas desde un archivo de texto en formato binario.
+     *
+     * @param ruta ruta del archivo
+     * @throws MyException
+     */
+    public void exportarPeliculasBinario(String ruta) throws MyException {
+        gestor.exportarBinario(ruta);
     }
 }

@@ -19,6 +19,7 @@ import java.util.List;
  * @author jorge
  */
 public class GestorDirectores {
+
     private final GestorFicheros<Director> gestor;
 
     public GestorDirectores() throws MyException {
@@ -29,7 +30,7 @@ public class GestorDirectores {
      * Añade un nuevo director al archivo.
      *
      * @param d Director pa añadir
-     * @throws MyException 
+     * @throws MyException
      */
     public void aniadirDirector(Director d) throws MyException {
         gestor.aniadir(d);
@@ -39,7 +40,7 @@ public class GestorDirectores {
      * Elimina un director del archivo.
      *
      * @param d director pa eliminar
-     * 
+     *
      * @throws MyException
      */
     public void borrarDirector(Director d) throws MyException {
@@ -51,7 +52,7 @@ public class GestorDirectores {
      *
      * @param antiguo Director que se desea reemplazar
      * @param nuevo Director con los datos actualizados
-     * 
+     *
      * @throws MyException
      */
     public void modificarDirector(Director antiguo, Director nuevo) throws MyException {
@@ -69,8 +70,9 @@ public class GestorDirectores {
     }
 
     /**
-     * Importa directores desde un archivo de texto.
-     * Cada línea del archivo debe tener el formato: id;nombre;apellido
+     * Importa directores desde un archivo de texto. Cada línea del archivo debe
+     * tener el formato: id;nombre;apellido
+     *
      * @param ruta Ruta del archivo pa importar
      * @throws MyException
      */
@@ -95,8 +97,8 @@ public class GestorDirectores {
     }
 
     /**
-     * Exporta los directores actuales a un archivo de texto.
-     * Cada director se guarda en una línea con el formato: id;nombre;apellido
+     * Exporta los directores actuales a un archivo de texto. Cada director se
+     * guarda en una línea con el formato: id;nombre;apellido
      *
      * @param ruta Ruta del archivo de texto destino
      * @throws MyException
@@ -111,5 +113,25 @@ public class GestorDirectores {
             throw new MyException("Error al exportar directores a: " + ruta);
         }
     }
-}
 
+    /**
+     * Importar directores a un archivo de texto en formato binario.
+     *
+     * @param ruta ruta del archivo
+     * @throws MyException
+     */
+    public void importarDirectoresBinario(String ruta) throws MyException {
+        gestor.importarBinario(ruta);
+    }
+
+    /**
+     * Exportar directores desde un archivo de texto en formato binario.
+     *
+     * @param ruta ruta del archivo
+     * @throws MyException
+     */
+    public void exportarDirectoresBinario(String ruta) throws MyException {
+        gestor.importarBinario(ruta);
+    }
+
+}

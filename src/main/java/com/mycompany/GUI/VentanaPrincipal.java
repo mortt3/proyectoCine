@@ -52,9 +52,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        btnRegistrarActor = new javax.swing.JButton();
-        btnRegistrarDirector = new javax.swing.JButton();
-        botonAddPelicula = new javax.swing.JButton();
+        btnRegistrar = new javax.swing.JButton();
         botonBorrar = new javax.swing.JButton();
         botonListado = new javax.swing.JButton();
         botonFin = new javax.swing.JButton();
@@ -71,24 +69,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
 
-        btnRegistrarActor.setText("Registrar Actor");
-        btnRegistrarActor.addActionListener(new java.awt.event.ActionListener() {
+        btnRegistrar.setText("Registrar");
+        btnRegistrar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRegistrarActorActionPerformed(evt);
-            }
-        });
-
-        btnRegistrarDirector.setText("Registrar Director");
-        btnRegistrarDirector.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRegistrarDirectorActionPerformed(evt);
-            }
-        });
-
-        botonAddPelicula.setText("Insertar Pelicula");
-        botonAddPelicula.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonAddPeliculaActionPerformed(evt);
+                btnRegistrarActionPerformed(evt);
             }
         });
 
@@ -136,11 +120,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(41, 41, 41)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(botonAddPelicula, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
                     .addComponent(botonFin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(botonBorrar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnRegistrarDirector, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnRegistrarActor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnRegistrar, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
                     .addComponent(botonListado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(17, 17, 17)
@@ -156,12 +138,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(22, 22, 22)
-                .addComponent(btnRegistrarActor)
-                .addGap(18, 18, 18)
-                .addComponent(btnRegistrarDirector)
-                .addGap(18, 18, 18)
-                .addComponent(botonAddPelicula)
-                .addGap(18, 18, 18)
+                .addComponent(btnRegistrar)
+                .addGap(100, 100, 100)
                 .addComponent(botonBorrar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addComponent(botonListado)
@@ -194,13 +172,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnRegistrarActorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActorActionPerformed
+    private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
         // TODO add your handling code here:
-        VentanaRegistroActor vRA = new VentanaRegistroActor(this);
+        VentanaOpcionesRegistro vor = new VentanaOpcionesRegistro(this);
         this.setVisible(false);
 
-
-    }//GEN-LAST:event_btnRegistrarActorActionPerformed
+    }//GEN-LAST:event_btnRegistrarActionPerformed
 
     private void botonFinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonFinActionPerformed
         exit(0);
@@ -209,12 +186,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
 
     }//GEN-LAST:event_formWindowClosing
-
-    private void btnRegistrarDirectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarDirectorActionPerformed
-        // TODO add your handling code here:
-        VentanaRegistroDirector vRD = new VentanaRegistroDirector(this);
-        this.setVisible(false);
-    }//GEN-LAST:event_btnRegistrarDirectorActionPerformed
 
     private void botonListadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonListadoActionPerformed
         // TODO add your handling code here:
@@ -227,13 +198,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         VentanaBorrarPeli vBP = new VentanaBorrarPeli(this);
         this.setVisible(false);
     }//GEN-LAST:event_botonBorrarActionPerformed
-
-    private void botonAddPeliculaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAddPeliculaActionPerformed
-        // TODO add your handling code here:
-        VentanaRegistroPelicula vRP = new VentanaRegistroPelicula(this);
-        this.setVisible(false);
-
-    }//GEN-LAST:event_botonAddPeliculaActionPerformed
 
     private void btnImportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportarActionPerformed
         // TODO add your handling code here:
@@ -377,14 +341,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton botonAddPelicula;
     private javax.swing.JButton botonBorrar;
     private javax.swing.JButton botonFin;
     private javax.swing.JButton botonListado;
     private javax.swing.JButton btnExportar;
     private javax.swing.JButton btnImportar;
-    private javax.swing.JButton btnRegistrarActor;
-    private javax.swing.JButton btnRegistrarDirector;
+    private javax.swing.JButton btnRegistrar;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables

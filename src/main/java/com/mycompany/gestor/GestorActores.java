@@ -8,9 +8,13 @@ import com.mycompany.excepciones.MyException;
 import com.mycompany.modelo.Actor;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +22,6 @@ import java.util.List;
  *
  * @author jorge
  */
-
 public class GestorActores {
 
     private final GestorFicheros<Actor> gestor;
@@ -37,9 +40,10 @@ public class GestorActores {
 
     /**
      * Cambia un actor por otro
+     *
      * @param antiguo actor actual
      * @param nuevo actor nuevo c
-     * @throws MyException 
+     * @throws MyException
      */
     public void modificarActor(Actor antiguo, Actor nuevo) throws MyException {
         gestor.modificar(antiguo, nuevo);
@@ -47,8 +51,9 @@ public class GestorActores {
 
     /**
      * la lista de actores guardados
+     *
      * @return lista de actores
-     * @throws MyException 
+     * @throws MyException
      */
     public List<Actor> getActores() throws MyException {
         return gestor.leerLista();
@@ -56,6 +61,7 @@ public class GestorActores {
 
     /**
      * Importa actores desde un archivo de texto (formato: id;nombre;edad)
+     *
      * @param ruta ruta del archivo
      * @throws MyException
      */
@@ -84,6 +90,7 @@ public class GestorActores {
 
     /**
      * Exporta la lista de actores (formato: id;nombre;edad)
+     *
      * @param ruta ruta
      * @throws MyException
      */
@@ -97,4 +104,25 @@ public class GestorActores {
             throw new MyException("Error al exportar actores a: " + ruta);
         }
     }
+
+    /**
+     * Importar actores desde un archivo de texto en formato binario.
+     *
+     * @param ruta ruta del archivo
+     * @throws MyException
+     */
+    public void importarAcotresBinario(String ruta) throws MyException {
+        gestor.importarBinario(ruta);
+    }
+
+    /**
+     * Exportar actores desde un archivo de texto en formato binario.
+     *
+     * @param ruta ruta del archivo
+     * @throws MyException
+     */
+    public void exportarAcotresBinario(String ruta) throws MyException {
+        gestor.exportarBinario(ruta);
+    }
+
 }

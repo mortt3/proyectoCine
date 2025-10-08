@@ -58,8 +58,29 @@ public class GestorPeliculas {
         gestor.borrar(p);
     }
 
-    public void modificarPelicula(Pelicula antigua, Pelicula nueva) throws MyException {
-        gestor.modificar(antigua, nueva);
+    public void modificarPelicula(Pelicula nueva,
+            List<Director> directoresDisponibles,
+            List<Actor> actoresDisponibles) throws MyException {
+        List<Pelicula> peliculas = getPeliculas(); // Leer películas actuales
+        Pelicula original = null;
+
+        // Buscar la película original por ID
+        for (Pelicula p : peliculas) {
+            if (p.getIdPeli().equalsIgnoreCase(nueva.getIdPeli())) {
+                original = p;
+                break;
+            }
+        }
+
+        if (original == null) {
+            throw new MyException("No se encontró la película con ID: " + nueva.getIdPeli());
+        }
+
+        // Eliminar la película original
+        borrarPelicula(original);
+
+        // Añadir la nueva (validando director y actores)
+        aniadirPelicula(nueva, directoresDisponibles, actoresDisponibles);
     }
 
     // litado de películas almacenadas.

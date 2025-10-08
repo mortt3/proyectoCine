@@ -48,18 +48,6 @@ public class GestorDirectores {
     }
 
     /**
-     * Modifica un director existente, reemplazándolo por uno nuevo.
-     *
-     * @param antiguo Director que se desea reemplazar
-     * @param nuevo Director con los datos actualizados
-     *
-     * @throws MyException
-     */
-    public void modificarDirector(Director antiguo, Director nuevo) throws MyException {
-        gestor.modificar(antiguo, nuevo);
-    }
-
-    /**
      * Devuelve la lista completa de directores almacenados.
      *
      * @return Lista de directores

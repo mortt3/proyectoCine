@@ -99,6 +99,11 @@ public class VentanaRegistroActor extends javax.swing.JFrame {
         txtNombre.setText("Nombre de actor");
 
         txtEdad.setText("Edad del actor");
+        txtEdad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtEdadActionPerformed(evt);
+            }
+        });
 
         btnAdd.setText("Añadir actor");
         btnAdd.addActionListener(new java.awt.event.ActionListener() {
@@ -156,7 +161,9 @@ public class VentanaRegistroActor extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        salir();
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿desas salir ?", "", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION)
+            salir();
     }//GEN-LAST:event_formWindowClosing
 
     private void salir() {
@@ -188,7 +195,9 @@ public class VentanaRegistroActor extends javax.swing.JFrame {
             int confirmar = JOptionPane.showConfirmDialog(this, "¿Desas agregar a otro actor?", "", JOptionPane.YES_NO_OPTION);
             if (confirmar == JOptionPane.NO_OPTION) {
                 salir();
-            }else limpiar();
+            } else {
+                limpiar();
+            }
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "La edad debe ser un número entero.");
@@ -196,6 +205,10 @@ public class VentanaRegistroActor extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error al guardar el actor: " + e.getMessage());
         }
     }//GEN-LAST:event_btnAddActionPerformed
+
+    private void txtEdadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEdadActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtEdadActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

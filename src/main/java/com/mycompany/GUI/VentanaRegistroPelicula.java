@@ -7,15 +7,12 @@ package com.mycompany.GUI;
 import com.mycompany.excepciones.MyException;
 import com.mycompany.gestor.GestorDirectores;
 import com.mycompany.gestor.GestorPeliculas;
-import com.mycompany.modelo.Actor;
-import com.mycompany.modelo.Director;
-import com.mycompany.modelo.Pelicula;
+import com.mycompany.modelo.*;
 import com.mycompany.util.IdGenerator;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 /**
@@ -237,17 +234,19 @@ public class VentanaRegistroPelicula extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        VentanaSeleccionActores vSA = new VentanaSeleccionActores(this);
-        this.setVisible(false);
+       VentanaSeleccionActores vSA = new VentanaSeleccionActores(this, null, "VentanaRegistro");
+         this.setVisible(false);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        salir();
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿desas salir ?", "", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION)
+            salir();
     }//GEN-LAST:event_formWindowClosing
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
         // TODO add your handling code here:
-        int confirmar = JOptionPane.showConfirmDialog(this, "desas salir sin guardar cambios?", "", JOptionPane.YES_NO_OPTION);
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿desas salir del registor de peliculas?", "", JOptionPane.YES_NO_OPTION);
         if (confirmar == JOptionPane.YES_OPTION)
             salir();
     }//GEN-LAST:event_btnSalirActionPerformed

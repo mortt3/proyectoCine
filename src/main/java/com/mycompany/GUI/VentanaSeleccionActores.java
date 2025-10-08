@@ -23,12 +23,14 @@ public class VentanaSeleccionActores extends javax.swing.JFrame {
     private DefaultTableModel modeloTabla;
     private GestorActores gestorActores;
     private VentanaRegistroPelicula vRP;
+    private VentanaModificarPelicula vMP;
 
     /**
      * Creates new form VentanaSeleccionActores
      */
-    public VentanaSeleccionActores(VentanaRegistroPelicula vRP) {
+    public VentanaSeleccionActores(VentanaRegistroPelicula vRP, VentanaModificarPelicula vMP, String ventana) {
         this.vRP = vRP;
+        this.vMP = vMP;
         initComponents();
         this.setVisible(true);
         cargarActoresEnTabla();
@@ -43,7 +45,7 @@ public class VentanaSeleccionActores extends javax.swing.JFrame {
             modeloTabla.setRowCount(0); // Limpiar tabla
 
             for (Actor actor : listaActores) {
-                Object[] fila = {actor.getIdActor(), actor.getNombre(),actor.getEdad()};
+                Object[] fila = {actor.getIdActor(), actor.getNombre(), actor.getEdad()};
                 modeloTabla.addRow(fila);
             }
 
@@ -53,8 +55,6 @@ public class VentanaSeleccionActores extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error cargando los actores ");
         }
     }
-
-   
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -172,26 +172,34 @@ public class VentanaSeleccionActores extends javax.swing.JFrame {
                 String id = (String) modeloTabla.getValueAt(modeloIndex, 0);
                 String nombre = (String) modeloTabla.getValueAt(modeloIndex, 1);
                 int edad = (int) modeloTabla.getValueAt(modeloIndex, 2);
-                
-                Actor a = new Actor(id, nombre,edad);
+
+                Actor a = new Actor(id, nombre, edad);
                 seleccionados.add(a);
             } catch (MyException ex) {
                 JOptionPane.showMessageDialog(this, ex);
             }
         }
-
-        vRP.setActoresSeleccionados(seleccionados);
+          if (vRP != null) {
+            vRP.setActoresSeleccionados(seleccionados);
+          }else if (vMP != null) {
+            vMP.setActoresSeleccionados(seleccionados);
+          }
         salir();
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        int confirmar = JOptionPane.showConfirmDialog(this, "no se agregara ningun actor, desas salir?","",JOptionPane.YES_NO_OPTION);
-        if(confirmar == JOptionPane.YES_OPTION) salir();
+        int confirmar = JOptionPane.showConfirmDialog(this, "no se agregara ningun actor, desas salir?", "", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION)
+            salir();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void salir() {
-        vRP.setVisible(true);
+        if (vRP != null) {
+            vRP.setVisible(true);
+        } else if (vMP != null) {
+            vMP.setVisible(true);
+        }
         this.dispose();
     }
 

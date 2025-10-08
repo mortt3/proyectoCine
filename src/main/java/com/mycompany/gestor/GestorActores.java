@@ -8,13 +8,9 @@ import com.mycompany.excepciones.MyException;
 import com.mycompany.modelo.Actor;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,17 +32,6 @@ public class GestorActores {
 
     public void borrarActor(Actor a) throws MyException {
         gestor.borrar(a);
-    }
-
-    /**
-     * Cambia un actor por otro
-     *
-     * @param antiguo actor actual
-     * @param nuevo actor nuevo c
-     * @throws MyException
-     */
-    public void modificarActor(Actor antiguo, Actor nuevo) throws MyException {
-        gestor.modificar(antiguo, nuevo);
     }
 
     /**

@@ -188,7 +188,9 @@ public class VentanaBorrarPeli extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        salir();
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿desas salir?", "", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION)
+            salir();
     }//GEN-LAST:event_formWindowClosing
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed

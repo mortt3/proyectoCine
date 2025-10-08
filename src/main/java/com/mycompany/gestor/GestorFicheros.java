@@ -9,15 +9,16 @@ import com.mycompany.modelo.Director;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  *
  * @author jorge
  */
 public class GestorFicheros<T> {
+
     private final File fichero;
     private static final File CARPETAINICIAL = new File("src", "main");
     private static final File CARPETA = new File(CARPETAINICIAL, "Ficheros");
-
 
     public GestorFicheros(String nombreFichero) throws MyException {
         // Asegura que la carpeta exista (aunque el método crearCarpeta también lo hace explícitamente)
@@ -37,12 +38,14 @@ public class GestorFicheros<T> {
             throw new MyException("Error creando fichero: " + fichero.getAbsolutePath());
         }
     }
+
     public static void crearCarpeta() {
         CARPETA.mkdirs();
     }
 
     /**
      * Lee la lista de objetos desde el fichero.
+     *
      * @return Lista de objetos de tipo T leída desde el archivo
      * @throws MyException si ocurre un error al leer el fichero
      */
@@ -55,7 +58,7 @@ public class GestorFicheros<T> {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fichero))) {
             Object obj = ois.readObject();
             if (obj instanceof List<?>) {
-                return (List<T>) obj; 
+                return (List<T>) obj;
             } else {
                 return new ArrayList<>();
             }
@@ -68,6 +71,7 @@ public class GestorFicheros<T> {
 
     /**
      * Guarda una lista completa de objetos en el fichero.
+     *
      * @param lista Lista de objetos a guardar
      * @throws MyException
      */
@@ -81,8 +85,9 @@ public class GestorFicheros<T> {
 
     /**
      * Añade un objeto a la lista almacenada y actualiza el fichero.
+     *
      * @param obj Objeto
-     * @throws MyException 
+     * @throws MyException
      */
     public void aniadir(T obj) throws MyException {
         List<T> lista = leerLista();
@@ -92,8 +97,9 @@ public class GestorFicheros<T> {
 
     /**
      * Elimina un objeto de la lista almacenada, si existe.
+     *
      * @param obj Objeto a eliminar
-     * @throws MyException 
+     * @throws MyException
      */
     public void borrar(T obj) throws MyException {
         List<T> lista = leerLista();
@@ -105,23 +111,6 @@ public class GestorFicheros<T> {
     }
 
     /**
-     * Modifica un objeto existente en la lista, reemplazándolo por uno nuevo.
-     * @param antiguo Objeto a reemplazar
-     * @param nuevo Objeto nuevo que sustituye al antiguo
-     * @throws MyException 
-     */
-    public void modificar(T antiguo, T nuevo) throws MyException {
-        List<T> lista = leerLista();
-        int index = lista.indexOf(antiguo);
-        if (index != -1) {
-            lista.set(index, nuevo);
-            guardarLista(lista);
-        } else {
-            throw new MyException("No se encontró el objeto a modificar: " + antiguo);
-        }
-    }
-    
-     /**
      * Importa actores binario
      *
      * @param ruta ruta del archivo de origen
@@ -130,9 +119,9 @@ public class GestorFicheros<T> {
     public void importarBinario(String ruta) throws MyException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ruta))) {
             Object obj = ois.readObject();
-                if (obj instanceof List<?>) {
-                    guardarLista((List<T>) obj);
-                } else {
+            if (obj instanceof List<?>) {
+                guardarLista((List<T>) obj);
+            } else {
                 throw new MyException("El archivo no contiene una lista de directores válida.");
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -143,7 +132,7 @@ public class GestorFicheros<T> {
     /**
      * Exporta la lista de actores en binario
      *
-     * @param ruta ruta del archivo de destino 
+     * @param ruta ruta del archivo de destino
      * @throws MyException
      */
     public void exportarBinario(String ruta) throws MyException {
@@ -154,4 +143,3 @@ public class GestorFicheros<T> {
         }
     }
 }
-

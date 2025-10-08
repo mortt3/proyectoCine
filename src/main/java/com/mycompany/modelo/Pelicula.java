@@ -81,7 +81,6 @@ public class Pelicula implements Serializable {
     }
 
     // compara dos películas por su ID.
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -91,12 +90,12 @@ public class Pelicula implements Serializable {
             return false;
         }
         Pelicula other = (Pelicula) obj;
-        return idPeli != null && idPeli.equals(other.idPeli);
+        return idPeli != null && idPeli.equalsIgnoreCase(other.idPeli);
     }
-    //Genera el hash code basado en el id de la película
+
     @Override
     public int hashCode() {
-        return idPeli != null ? idPeli.hashCode() : 0;
+        return idPeli != null ? idPeli.toLowerCase().hashCode() : 0;
     }
 
 }

@@ -6,13 +6,13 @@ package com.mycompany.GUI;
 
 import com.mycompany.excepciones.MyException;
 import com.mycompany.gestor.*;
+import com.mycompany.modelo.Actor;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
 import static java.lang.System.exit;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -59,6 +59,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         btnImportar = new javax.swing.JButton();
         btnExportar = new javax.swing.JButton();
+        btnBuscar = new javax.swing.JButton();
+        botonModificarPeli = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FILM LOS ENLACES");
@@ -113,6 +115,20 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
 
+        btnBuscar.setText("Buscar actores");
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
+            }
+        });
+
+        botonModificarPeli.setText("Modificar Pelicula");
+        botonModificarPeli.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonModificarPeliActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -130,7 +146,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(btnImportar, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnExportar, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)))
+                        .addComponent(btnExportar, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE))
+                    .addComponent(btnBuscar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                    .addComponent(botonModificarPeli, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(39, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -139,7 +157,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(22, 22, 22)
                 .addComponent(btnRegistrar)
-                .addGap(100, 100, 100)
+                .addGap(18, 18, 18)
+                .addComponent(btnBuscar)
+                .addGap(18, 18, 18)
+                .addComponent(botonModificarPeli)
+                .addGap(18, 18, 18)
                 .addComponent(botonBorrar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addComponent(botonListado)
@@ -176,7 +198,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         // TODO add your handling code here:
         VentanaOpcionesRegistro vor = new VentanaOpcionesRegistro(this);
         this.setVisible(false);
-
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
     private void botonFinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonFinActionPerformed
@@ -309,6 +330,49 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnExportarActionPerformed
 
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        // TODO add your handling code here:
+
+        String[] opciones = {"Nombre", "Edad",};
+        int seleccion = JOptionPane.showOptionDialog(this,
+                "como lo deseas buscar",
+                "",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]);
+
+        if (seleccion != -1) {
+
+            switch (seleccion) {
+                case 0: //buscar por nombre
+                    if (buscarActorNombre()) {
+                        return;
+                    }
+                    break;
+
+                case 1: // buscar por edad
+                    if (buscarActorEdad()) {
+                        return;
+                    }
+                    break;
+
+                default:
+                    JOptionPane.showMessageDialog(this, "Selección no válida.");
+                    break;
+
+            }
+        }
+
+    }//GEN-LAST:event_btnBuscarActionPerformed
+
+    private void botonModificarPeliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonModificarPeliActionPerformed
+        // TODO add your handling code here:
+        VentanaModificarPelicula vMP = new VentanaModificarPelicula(this);
+        this.setVisible(false);
+    }//GEN-LAST:event_botonModificarPeliActionPerformed
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -340,10 +404,76 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             }
         });
     }
+    //METSODOS----------
+    
+    private boolean buscarActorEdad() throws HeadlessException { // buscar por edad
+        String edadString;
+        int edad;
+        try {
+            edadString = JOptionPane.showInputDialog(this, "Introduce la edad del actor que quieres buscar:");
+
+            if (edadString == null || edadString.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No se introdujo ninguna edad.");
+                return true;
+            } else {
+                edad = Integer.parseInt(edadString.trim()); // castear edad ignorando el espacio final
+                GestorActores gestor = new GestorActores();
+                List<Actor> actores = gestor.getActores();
+                boolean encontrado = false;
+                for (Actor a : actores) { // recorrer listado de actores
+                    if (a.getEdad() == edad) {
+                        JOptionPane.showMessageDialog(this,
+                                "Actor encontrado:\nID: " + a.getIdActor() + "\nNombre: " + a.getNombre() + "\nEdad: " + a.getEdad());
+                        encontrado = true;
+                    }
+                }
+                if (!encontrado) {
+                    JOptionPane.showMessageDialog(this, "No se encontró ningún actor con esa edad.");
+                }
+            }
+        } catch (MyException e) {
+            JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "la edad introducida no es un numero valido");
+        }
+        return false;
+    }
+
+    private boolean buscarActorNombre() throws HeadlessException {
+        // buscar nombre
+        String nombre;
+        try {
+            nombre = JOptionPane.showInputDialog(this, "Introduce el nombre del actor que quieres buscar:");
+            if (nombre == null || nombre.trim().isEmpty()) {  //ver si introduce algun nombre
+                JOptionPane.showMessageDialog(this, "No se introdujo ningún nombre.");
+                return true;
+            }
+            GestorActores gestor = new GestorActores();
+            List<Actor> actores = gestor.getActores();
+            boolean encontrado = false;
+            for (Actor a : actores) {    //recorrer los actores
+                if (a.getNombre().equalsIgnoreCase(nombre.trim())) {
+                    JOptionPane.showMessageDialog(this,
+                            "Actor encontrado:\nID: " + a.getIdActor() + "\nNombre: " + a.getNombre() + "\nEdad: " + a.getEdad()); //devuelve el acor que ha sido encontrado
+                    encontrado = true;
+                }
+            }
+            if (!encontrado) {
+                JOptionPane.showMessageDialog(this, "No se encontró ningún actor con ese nombre");
+            }
+        } catch (MyException e) {
+            JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage());
+        }
+        return false;
+    }
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonBorrar;
     private javax.swing.JButton botonFin;
     private javax.swing.JButton botonListado;
+    private javax.swing.JButton botonModificarPeli;
+    private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnExportar;
     private javax.swing.JButton btnImportar;
     private javax.swing.JButton btnRegistrar;

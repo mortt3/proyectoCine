@@ -8,6 +8,9 @@ import com.mycompany.excepciones.MyException;
 import com.mycompany.modelo.Director;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -101,25 +104,39 @@ public class GestorDirectores {
             throw new MyException("Error al exportar directores a: " + ruta);
         }
     }
-
     /**
-     * Importar directores a un archivo de texto en formato binario.
-     *
-     * @param ruta ruta del archivo
-     * @throws MyException
+     * Importar directores desde  binario.
+     * @param ruta del archivo a importar
+     * @throws MyException 
      */
     public void importarDirectoresBinario(String ruta) throws MyException {
-        gestor.importarBinario(ruta);
-    }
+        FileInputStream fis = null;
+        DataInputStream dis = null;
+        try {
+            fis = new FileInputStream(ruta);
+            dis = new DataInputStream(fis);
+            List<Director> director = new ArrayList<>();
 
-    /**
-     * Exportar directores desde un archivo de texto en formato binario.
-     *
-     * @param ruta ruta del archivo
-     * @throws MyException
-     */
-    public void exportarDirectoresBinario(String ruta) throws MyException {
-        gestor.importarBinario(ruta);
+            while (true) {
+                try {
+                    String id = dis.readUTF();
+                    String nombre = dis.readUTF();
+                    String apellido = dis.readUTF();
+
+                    // Crear y añadir a la lista
+                    director.add(new Director(id, nombre, apellido));
+                } catch (EOFException e) {
+                    break;
+                } catch (IOException e) {
+                    throw new MyException("Error al leer datos del archivo binario.");
+                }
+            }
+            gestor.guardarLista(director);
+        } catch (IOException e) {
+            throw new MyException("Error al importar actores desde: " + ruta);
+        } catch (NumberFormatException e) {
+            throw new MyException("Formato de edad inválido en el archivo de actores.");
+        }
     }
 
 }

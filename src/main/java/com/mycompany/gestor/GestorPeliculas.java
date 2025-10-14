@@ -8,9 +8,14 @@ import com.mycompany.excepciones.MyException;
 import com.mycompany.modelo.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -97,74 +102,188 @@ public class GestorPeliculas {
      * @param gestorActores Gestor que contiene los actores válidos
      * @throws MyException si ocurre un error al importar
      */
-    public void importarPeliculas(
-            String ruta,
+    public void importarPeliculas(String ruta,
             GestorDirectores gestorDirectores,
             GestorActores gestorActores) throws MyException {
+        List<Pelicula> peliculas = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
-            List<Pelicula> peliculas = new ArrayList<>();
             String linea;
 
             while ((linea = br.readLine()) != null) {
-                String[] partes = linea.split(";");
-                if (partes.length < 5) {
-                    continue; // Línea incompleta, se ignora
-                }
-                String idPeli = partes[0].trim();
-                String titulo = partes[1].trim();
-                String genero = partes[2].trim();
-                String[] datosDirector = partes[3].split(",");
-                String[] datosActores = partes[4].split("\\|");
-                String idDirector = datosDirector[0].trim();
-                String nombreDir = datosDirector.length > 1 ? datosDirector[1].trim() : "Desconocido";
-                String apellidoDir = datosDirector.length > 2 ? datosDirector[2].trim() : "";
-
-                Director director = gestorDirectores.getDirectores().stream()
-                        .filter(d -> d.getIdDirector().equalsIgnoreCase(idDirector))
-                        .findFirst()
-                        .orElse(null);
-
-                if (director == null) {
-                    // Si el director no existe, lo creamos y añadimos
-                    director = new Director(idDirector, nombreDir, apellidoDir);
-                    gestorDirectores.aniadirDirector(director);
-                }
-                List<Actor> actores = new ArrayList<>();
-                for (String datosActor : datosActores) {
-                    String[] info = datosActor.split(",");
-                    if (info.length < 3) {
-                        continue;
+                try {
+                    String[] partes = linea.split(";");
+                    if (partes.length < 5) {
+                        continue; // Línea incompleta
                     }
-                    String idActor = info[0].trim();
-                    String nombreActor = info[1].trim();
-                    int edad = Integer.parseInt(info[2].trim());
+                    String idPeli = partes[0].trim();
+                    String titulo = partes[1].trim();
+                    String genero = partes[2].trim();
 
-                    Actor actor = gestorActores.getActores().stream()
-                            .filter(a -> a.getIdActor().equalsIgnoreCase(idActor))
-                            .findFirst()
-                            .orElse(null);
+                    String[] datosDirector = partes[3].split(",");
+                    String idDirector = datosDirector[0].trim();
+                    String nombreDir = datosDirector.length > 1 ? datosDirector[1].trim() : "Desconocido";
+                    String apellidoDir = datosDirector.length > 2 ? datosDirector[2].trim() : "Desconocido";
 
-                    if (actor == null) {
-                        // Si el actor no existe, se crea y se añade
-                        actor = new Actor(idActor, nombreActor, edad);
-                        gestorActores.aniadirActor(actor);
+                    // Buscar director en gestor
+                    Director director = null;
+                    for (Director d : gestorDirectores.getDirectores()) {
+                        if (d.getIdDirector().equalsIgnoreCase(idDirector)) {
+                            director = d;
+                            break;
+                        }
                     }
-                    actores.add(actor);
+
+                    // Crear director si no existe
+                    if (director == null) {
+                        try {
+                            director = new Director(idDirector, nombreDir, apellidoDir);
+                            gestorDirectores.aniadirDirector(director);
+                        } catch (MyException e) {
+                            System.out.println("No se pudo crear director para película " + idPeli + ": " + e.getMessage());
+                            continue; // Saltar esta película
+                        }
+                    }
+
+                    // Actores
+                    List<Actor> actores = new ArrayList<>();
+                    String[] datosActores = partes[4].split("\\|");
+                    for (String infoActor : datosActores) {
+                        try {
+                            String[] info = infoActor.split(",");
+                            if (info.length < 3) {
+                                continue;
+                            }
+
+                            String idActor = info[0].trim();
+                            String nombreActor = info[1].trim();
+                            int edad = Integer.parseInt(info[2].trim());
+
+                            // Buscar actor en gestor
+                            Actor actor = null;
+                            for (Actor a : gestorActores.getActores()) {
+                                if (a.getIdActor().equalsIgnoreCase(idActor)) {
+                                    actor = a;
+                                    break;
+                                }
+                            }
+
+                            // Crear actor si no existe
+                            if (actor == null) {
+                                try {
+                                    actor = new Actor(idActor, nombreActor, edad);
+                                    gestorActores.aniadirActor(actor);
+                                } catch (MyException e) {
+                                    System.out.println("No se pudo crear actor " + idActor + " para película " + idPeli + ": " + e.getMessage());
+                                    continue; // Saltar este actor
+                                }
+                            }
+
+                            actores.add(actor);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Edad inválida para actor en película " + idPeli);
+                        }
+                    }
+
+                    // Crear película solo si hay director y al menos un actor válido
+                    if (director != null && !actores.isEmpty()) {
+                        try {
+                            Pelicula pelicula = new Pelicula(idPeli, titulo, genero, director, actores);
+                            peliculas.add(pelicula);
+                        } catch (MyException e) {
+                            System.out.println("No se pudo crear película " + idPeli + ": " + e.getMessage());
+                        }
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Error en línea: " + linea + " -> " + e.getMessage());
                 }
-                Pelicula pelicula = new Pelicula(idPeli, titulo, genero, director, actores);
-                peliculas.add(pelicula);
             }
 
-            // Guardar todas las películas importadas
+            // Guardar todas las películas válidas
             gestor.guardarLista(peliculas);
 
         } catch (IOException e) {
             throw new MyException("Error al leer el archivo de películas: " + ruta);
-        } catch (NumberFormatException e) {
-            throw new MyException("Error en el formato de edad de algún actor: " + e.getMessage());
-        } catch (Exception e) {
-            throw new MyException("Error inesperado al importar películas: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Importa películas desde un archivo binario.
+     *
+     * @param ruta ruta del archivo
+     * @param gestorDirectores gestor de los directores válidos
+     * @param gestorActores Gestor de los actores válidos
+     * @throws MyException si ocurre un error al importar
+     */
+    public void importarPeliculasBinario(
+            String ruta,
+            GestorDirectores gestorDirectores,
+            GestorActores gestorActores) throws MyException {
+
+        List<Pelicula> peliculas = new ArrayList<>();
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ruta))) {
+
+            while (true) {
+                try {
+                    Pelicula p = (Pelicula) ois.readObject();
+
+                    //comprobar que exista el director
+                    Director director = null;
+                    for (Director d : gestorDirectores.getDirectores()) {
+                        if (d.getIdDirector().equalsIgnoreCase(p.getDirector().getIdDirector())) {
+                            director = d;
+                            break;
+                        }
+                    }
+                    //se crea si no existe
+                    if (director == null) {
+                        director = p.getDirector();
+                        gestorDirectores.aniadirDirector(director);
+                    }
+                    //comprobar que exista el actor
+                    List<Actor> actoresActualizados = new ArrayList<>();
+                    for (Actor a : p.getActores()) {
+                        Actor actorEncontrado = null;
+                        for (Actor existente : gestorActores.getActores()) {
+                            if (existente.getIdActor().equalsIgnoreCase(a.getIdActor())) {
+                                actorEncontrado = existente;
+                                break;
+                            }
+                        }
+                        //se crea si no existe
+                        if (actorEncontrado == null) {
+                            gestorActores.aniadirActor(a);
+                            actoresActualizados.add(a);
+                        } else {
+                            actoresActualizados.add(actorEncontrado);
+                        }
+                    }
+
+                    // === Crear nueva película con los objetos actualizados ===
+                    Pelicula nuevaPeli = new Pelicula(
+                            p.getIdPeli(),
+                            p.getTitulo(),
+                            p.getGenero(),
+                            director,
+                            actoresActualizados
+                    );
+
+                    peliculas.add(nuevaPeli);
+
+                } catch (EOFException e) {
+                    break; // Fin del archivo
+                }
+            }
+
+            // Guardar todas las películas leídas
+            gestor.guardarLista(peliculas);
+
+        } catch (IOException e) {
+            throw new MyException("Error al importar películas desde: " + ruta);
+        } catch (ClassNotFoundException e) {
+            throw new MyException("Error al leer los objetos del archivo binario.");
         }
     }
 
@@ -191,23 +310,14 @@ public class GestorPeliculas {
         }
     }
 
-    /**
-     * Exportar películas a un archivo de texto en formato binario.
-     *
-     * @param ruta ruta del archivo
-     * @throws MyException
-     */
-    public void importarPeliculasBinario(String ruta) throws MyException {
-        gestor.importarBinario(ruta);
+    public void exportarPeliculasBinario(String ruta) throws MyException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ruta))) {
+            for (Pelicula p : getPeliculas()) {
+                oos.writeObject(p);
+            }
+        } catch (IOException e) {
+            throw new MyException("Error al exportar películas a: " + ruta);
+        }
     }
 
-    /**
-     * Importar películas desde un archivo de texto en formato binario.
-     *
-     * @param ruta ruta del archivo
-     * @throws MyException
-     */
-    public void exportarPeliculasBinario(String ruta) throws MyException {
-        gestor.exportarBinario(ruta);
-    }
 }

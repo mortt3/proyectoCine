@@ -12,9 +12,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,8 +81,9 @@ public class GestorActores {
 
     /**
      * Importa actores desde binario
+     *
      * @param ruta del archivo
-     * @throws MyException 
+     * @throws MyException
      */
     public void importarActoresBinario(String ruta) throws MyException {
         FileInputStream fis = null;
@@ -92,9 +95,9 @@ public class GestorActores {
 
             while (true) {
                 try {
-                    String id = dis.readUTF(); 
-                    String nombre = dis.readUTF(); 
-                    int edad = dis.readInt();     
+                    String id = dis.readUTF();
+                    String nombre = dis.readUTF();
+                    int edad = dis.readInt();
 
                     // Crear y añadir a la lista
                     actores.add(new Actor(id, nombre, edad));
@@ -128,24 +131,6 @@ public class GestorActores {
             throw new MyException("Error al exportar actores a: " + ruta);
         }
     }
-    /**
-     * Importar actores desde un archivo de texto en formato binario.
-     *  
-     * @param ruta ruta del archivo
-     * @throws MyException
-     */
-    public void importarAcotresBinario(String ruta) throws MyException {
-        gestor.importarBinario(ruta);
-    }
 
-    /**
-     * Exportar actores desde un archivo de texto en formato binario.
-     *
-     * @param ruta ruta del archivo
-     * @throws MyException
-     */
-    public void exportarAcotresBinario(String ruta) throws MyException {
-        gestor.exportarBinario(ruta);
-    }
 
 }

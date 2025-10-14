@@ -21,10 +21,10 @@ public class GestorFicheros<T> {
     private static final File CARPETA = new File(CARPETAINICIAL, "Ficheros");
 
     public GestorFicheros(String nombreFichero) throws MyException {
-        // Asegura que la carpeta exista (aunque el método crearCarpeta también lo hace explícitamente)
         if (!CARPETA.exists()) {
-            // Se puede usar crearCarpeta() aquí si se desea.
+            CARPETA.mkdirs(); 
         }
+
 
         this.fichero = new File(CARPETA, nombreFichero);
 
@@ -142,4 +142,5 @@ public class GestorFicheros<T> {
             throw new MyException("Error al exportar directores en binario: " + ruta);
         }
     }
+
 }

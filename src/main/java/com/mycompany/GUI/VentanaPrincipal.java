@@ -201,11 +201,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRegistrarActionPerformed
 
     private void botonFinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonFinActionPerformed
+        borrarCarpetaYCerrar();
         exit(0);
+
     }//GEN-LAST:event_botonFinActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-
+        borrarCarpetaYCerrar();
     }//GEN-LAST:event_formWindowClosing
 
     private void botonListadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonListadoActionPerformed
@@ -244,24 +246,59 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         try {
             switch (seleccion) {
-                case 0: // Actores
-                    gestorActores.importarActores(archivo.getAbsolutePath());
-                    JOptionPane.showMessageDialog(this, "Actores importados correctamente.");
-                    break;
+                case 0:
+                    int formato = 0;
+                    opcionFormato(formato);
+                    switch (formato) {
+                        case 0:
+                            gestorActores.importarActores(archivo.getAbsolutePath());
+                            JOptionPane.showMessageDialog(this, "Actores importados correctamente.");
+                            break;
+                        case 1:
+                            gestorActores.importarAcotresBinario(archivo.getAbsolutePath());
+                            JOptionPane.showMessageDialog(this, "Actores importados correctamente.");
+                            break;
+                        default:
+                            JOptionPane.showMessageDialog(this, "Selección no válida.");
+                            break;
+                    }
 
                 case 1: // Directores
-                    gestorDirectores.importarDirectores(archivo.getAbsolutePath());
-                    JOptionPane.showMessageDialog(this, "Directores importados correctamente.");
-                    break;
+                    formato = 0;
+                    opcionFormato(formato);
+                    switch (formato) {
+                        case 0:
+                            gestorDirectores.importarDirectores(archivo.getAbsolutePath());
+                            JOptionPane.showMessageDialog(this, "Directores importados correctamente.");
+                            break;
+                        case 1:
+                            gestorDirectores.importarDirectoresBinario(archivo.getAbsolutePath());
+                            JOptionPane.showMessageDialog(this, "Directores importados correctamente.");
+                        default:
+                            JOptionPane.showMessageDialog(this, "Selección no válida.");
+                            break;
+                    }
 
                 case 2: // Películas
-                    gestorPeliculas.importarPeliculas(
-                            archivo.getAbsolutePath(),
-                            gestorDirectores,
-                            gestorActores
-                    );
-                    JOptionPane.showMessageDialog(this, "Películas importadas correctamente.");
-                    break;
+                    formato = 0;
+                    opcionFormato(formato);
+                    switch (formato) {
+                        case 0:
+                            gestorPeliculas.importarPeliculas(
+                                    archivo.getAbsolutePath(),
+                                    gestorDirectores,
+                                    gestorActores
+                            );
+                            JOptionPane.showMessageDialog(this, "Películas importadas correctamente.");
+                            break;
+                        case 1:
+                            gestorPeliculas.importarPeliculasBinario(archivo.getAbsolutePath());
+                            JOptionPane.showMessageDialog(this, "Películas importadas correctamente.");
+
+                        default:
+                            JOptionPane.showMessageDialog(this, "Selección no válida.");
+                            break;
+                    }
 
                 default:
                     JOptionPane.showMessageDialog(this, "Selección no válida.");
@@ -276,6 +313,20 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_btnImportarActionPerformed
+
+    private void opcionFormato(int formato) throws HeadlessException {
+        // Actores
+
+        String[] opcionFormato = {".txt", "binario", "DOM", "SAX"};
+        formato = JOptionPane.showOptionDialog(this,
+                "¿Qué deseas importar?",
+                "",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opcionFormato,
+                opcionFormato[0]);
+    }
 
     private void btnExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarActionPerformed
         // TODO add your handling code here:
@@ -405,7 +456,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         });
     }
     //METSODOS----------
-    
+
     private boolean buscarActorEdad() throws HeadlessException { // buscar por edad
         String edadString;
         int edad;
@@ -465,6 +516,42 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error al buscar: " + e.getMessage());
         }
         return false;
+    }
+
+    private void borrarCarpetaYCerrar() {
+        File carpeta = new File("src/main/Ficheros");
+
+        if (carpeta.exists()) {
+            if (borrarCarpetaRecursiva(carpeta)) {
+                JOptionPane.showMessageDialog(this, "Ficheros temporales eliminados. Cerrando la aplicación.");
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudieron eliminar algunos ficheros.");
+            }
+        }
+
+        System.exit(0);
+    }
+
+    private boolean borrarCarpetaRecursiva(File carpeta) {
+        boolean exito = true;
+        File[] archivos = carpeta.listFiles();
+        if (archivos != null) {
+            for (File archivo : archivos) {
+                if (archivo.isDirectory()) {
+                    exito &= borrarCarpetaRecursiva(archivo);
+                } else {
+                    if (!archivo.delete()) {
+                        System.err.println("No se pudo borrar archivo: " + archivo.getAbsolutePath());
+                        exito = false;
+                    }
+                }
+            }
+        }
+        if (!carpeta.delete()) {
+            System.err.println("No se pudo borrar carpeta: " + carpeta.getAbsolutePath());
+            exito = false;
+        }
+        return exito;
     }
 
 

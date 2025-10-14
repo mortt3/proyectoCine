@@ -5,6 +5,7 @@
 package com.mycompany.util;
 
 import com.mycompany.excepciones.MyException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,23 +20,26 @@ import java.util.Map;
  */
 public class IdGenerator {
 
-    private static final String FILE_NAME = "ids.dat";
+    private static final File CARPETAINICIAL = new File("src", "main");
+    private static final File CARPETA = new File(CARPETAINICIAL, "Ficheros");
+    private static final File FILE = new File(CARPETA, "ids.dat");
+
     private Map<String, Integer> ids;
-    
+
     public IdGenerator() {
         ids = cargarIds();
     }
 
     private Map<String, Integer> cargarIds() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE))) {
             return (Map<String, Integer>) ois.readObject();
         } catch (Exception e) {
             return new HashMap<>();
         }
     }
-     
+
     private void saveIds() throws MyException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE))) {
             oos.writeObject(ids);
         } catch (IOException e) {
             throw new MyException("Error al guardar los IDs");

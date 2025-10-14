@@ -8,6 +8,10 @@ import com.mycompany.excepciones.MyException;
 import com.mycompany.modelo.Actor;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -74,6 +78,41 @@ public class GestorActores {
     }
 
     /**
+     * Importa actores desde binario
+     * @param ruta del archivo
+     * @throws MyException 
+     */
+    public void importarActoresBinario(String ruta) throws MyException {
+        FileInputStream fis = null;
+        DataInputStream dis = null;
+        try {
+            fis = new FileInputStream(ruta);
+            dis = new DataInputStream(fis);
+            List<Actor> actores = new ArrayList<>();
+
+            while (true) {
+                try {
+                    String id = dis.readUTF(); 
+                    String nombre = dis.readUTF(); 
+                    int edad = dis.readInt();     
+
+                    // Crear y añadir a la lista
+                    actores.add(new Actor(id, nombre, edad));
+                } catch (EOFException e) {
+                    break;
+                } catch (IOException e) {
+                    throw new MyException("Error al leer datos del archivo binario.");
+                }
+            }
+            gestor.guardarLista(actores);
+        } catch (IOException e) {
+            throw new MyException("Error al importar actores desde: " + ruta);
+        } catch (NumberFormatException e) {
+            throw new MyException("Formato de edad inválido en el archivo de actores.");
+        }
+    }
+
+    /**
      * Exporta la lista de actores (formato: id;nombre;edad)
      *
      * @param ruta ruta
@@ -89,10 +128,9 @@ public class GestorActores {
             throw new MyException("Error al exportar actores a: " + ruta);
         }
     }
-
     /**
      * Importar actores desde un archivo de texto en formato binario.
-     *
+     *  
      * @param ruta ruta del archivo
      * @throws MyException
      */

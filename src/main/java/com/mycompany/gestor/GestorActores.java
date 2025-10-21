@@ -4,21 +4,29 @@
  */
 package com.mycompany.gestor;
 
-import com.mycompany.excepciones.MyException;
-import com.mycompany.modelo.Actor;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import com.mycompany.excepciones.MyException;
+import com.mycompany.modelo.Actor;
+import java.io.File;
 import java.util.ArrayList;
+import org.xml.sax.Attributes;
 import java.util.List;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  *
@@ -114,6 +122,115 @@ public class GestorActores {
             throw new MyException("Formato de edad inválido en el archivo de actores.");
         }
     }
+    /**
+     * Importar actores desde XML usando DOM.
+     *
+     * @param ruta del archivo XML
+     * @throws MyException
+     */
+    public void importarActoresDOM(String ruta) throws MyException { 
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); 
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder(); // Crear el constructor de documentos
+            Document document = builder.parse(new File(ruta)); // Parsear el archivo XML
+            document.getDocumentElement().normalize(); // Normalizar el documento
+
+            NodeList listaActores = document.getElementsByTagName("actor"); // Obtener la lista de nodos "actor"
+            List<Actor> actores = new ArrayList<>(); // Lista para almacenar los actores importados
+
+            for (int i = 0; i < listaActores.getLength(); i++) {
+                Node nodo = listaActores.item(i); // Obtener cada nodo "actor"
+
+                if (nodo.getNodeType() == Node.ELEMENT_NODE) { // Verificar que es un elemento
+                    try {
+                        Element elemento = (Element) nodo; // Convertir el nodo a elemento
+
+                        String id = elemento.getElementsByTagName("idActor").item(0).getTextContent(); 
+                        String nombre = elemento.getElementsByTagName("nombre").item(0).getTextContent();
+                        int edad = Integer.parseInt(elemento.getElementsByTagName("edad").item(0).getTextContent());
+
+                        actores.add(new Actor(id, nombre, edad));
+                    } catch (MyException e) {
+                        // Ignora actores inválidos pero sigue con el resto
+                        System.out.println("actor incorrecto");
+                    }
+                }
+            }
+
+            gestor.guardarLista(actores);
+            System.out.println("Actores importados correctamente desde: " + ruta);
+
+        } catch (Exception e) {
+            throw new MyException("Error al importar actores con DOM ");
+        }
+    }
+    /**
+     * Importar actores desde XML usando SAX.
+     *
+     * @param ruta del archivo XML
+     * @throws MyException
+     */
+    
+    public void importarActoresSAX(String ruta) throws MyException {
+    try {
+        // Crear el parser SAX
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParser saxParser = factory.newSAXParser();
+
+        List<Actor> actores = new ArrayList<>();
+
+        // Crear el manejador de eventos
+        DefaultHandler handler = new DefaultHandler() {
+            private StringBuilder contenido = new StringBuilder();
+            private String id;
+            private String nombre;
+            private int edad;
+
+            @Override
+            public void startElement(String uri, String localName, String qName, Attributes attributes) {
+                contenido.setLength(0); // limpia el texto anterior
+            }
+
+            @Override
+            public void characters(char[] ch, int start, int length) {
+                contenido.append(ch, start, length);
+            }
+
+            @Override
+            public void endElement(String uri, String localName, String qName) {
+                switch (qName) {
+                    case "idActor":
+                        id = contenido.toString().trim();
+                        break;
+                    case "nombre":
+                        nombre = contenido.toString().trim();
+                        break;
+                    case "edad":
+                        edad = Integer.parseInt(contenido.toString().trim());
+                        break;
+                    case "actor":
+                        try {
+                            actores.add(new Actor(id, nombre, edad));
+                        } catch (MyException e) {
+                            System.out.println("Actor incorrecto");
+                        }
+                        break;
+                }
+            }
+        };
+
+        // Parsear el archivo XML
+        saxParser.parse(new File(ruta), handler);
+
+        // Guardar en el fichero binario
+        gestor.guardarLista(actores);
+        System.out.println(" Actores importados correctamente con SAX  ");
+
+    } catch (Exception e) {
+        throw new MyException("Error al importar actores con SAX  ");
+    }
+}
+
 
     /**
      * Exporta la lista de actores (formato: id;nombre;edad)
@@ -131,6 +248,5 @@ public class GestorActores {
             throw new MyException("Error al exportar actores a: " + ruta);
         }
     }
-
 
 }

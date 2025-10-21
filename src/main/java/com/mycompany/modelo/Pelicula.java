@@ -26,6 +26,9 @@ public class Pelicula implements Serializable {
         this.actores = actores;
     }
 
+    public Pelicula() {
+    }
+
     private String validarTitulo(String titulo) throws MyException {
         if (!titulo.matches("[a-zA-Z0-9ñáéíóúÁÉÍÓÚ:/\\\"-_ç() ]{1,100}")) {
             throw new MyException("el titulo introducido es incorrecto");

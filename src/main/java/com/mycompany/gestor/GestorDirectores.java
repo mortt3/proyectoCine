@@ -17,6 +17,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+//para importar DOM y SAX
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.parsers.*;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
 /**
  *
  * @author jorge
@@ -104,10 +112,12 @@ public class GestorDirectores {
             throw new MyException("Error al exportar directores a: " + ruta);
         }
     }
+
     /**
-     * Importar directores desde  binario.
+     * Importar directores desde binario.
+     *
      * @param ruta del archivo a importar
-     * @throws MyException 
+     * @throws MyException
      */
     public void importarDirectoresBinario(String ruta) throws MyException {
         FileInputStream fis = null;
@@ -136,6 +146,65 @@ public class GestorDirectores {
             throw new MyException("Error al importar actores desde: " + ruta);
         } catch (NumberFormatException e) {
             throw new MyException("Formato de edad inválido en el archivo de actores.");
+        }
+    }
+
+    /**
+     * Importar directores desde XML usando DOM.
+     * @param ruta del archivo XML
+     * @throws MyException 
+     */
+    public void importarDirectoresDOM(String ruta) throws MyException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new File(ruta));
+
+            document.getDocumentElement().normalize();
+
+            NodeList listaDirectores = document.getElementsByTagName("director");
+            List<Director> director = new ArrayList<>();
+            for (int i = 0; i < listaDirectores.getLength(); i++) {
+                Node nodo = listaDirectores.item(i);
+
+                if (nodo.getNodeType() == Node.ELEMENT_NODE) {
+                    try {
+                        Element elemento = (Element) nodo;
+
+                        String id = elemento.getElementsByTagName("idDirector").item(0).getTextContent();
+                        String nombre = elemento.getElementsByTagName("nombre").item(0).getTextContent();
+                        String apellido = elemento.getElementsByTagName("apellido").item(0).getTextContent();
+
+                        director.add(new Director(id, nombre, apellido));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            gestor.guardarLista(director);
+            System.out.println("Importación completada.");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    /**
+     * Importar directores desde XML usando SAX.
+     *
+     * @param ruta del archivo XML
+     * @throws MyException
+     */
+
+     //otra forma de importar con SAX usando el handler
+    public void importarDirectoresSAX(String ruta) throws MyException {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+            GestorDirectoresHandler handler = new GestorDirectoresHandler(gestor);
+            saxParser.parse(new File(ruta), handler);
+            System.out.println("Importación completada.");
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            throw new MyException("Error al importar directores con SAX: " + ex.getMessage());
         }
     }
 

@@ -20,15 +20,24 @@ public class Director implements Serializable {
         this.nombre = validarNombre(nombre);
         this.apellido = validarApellido(apellido);
     }
-    private String validarNombre (String nombre) throws MyException{
-         if(!nombre.matches("[a-zA-Z0-9ñáéíóúÁÉÍÓÚñÑ: \\\"-_ç() ]{1,30}")) {throw new MyException("el nombre no es valido");}
-         return nombre;
+
+    public Director() {
     }
-    
-    private String validarApellido (String apellido) throws MyException{
-         if(!apellido.matches("[a-zA-Z0-9ñáéíóúÁÉÍÓÚñÑ: \\\"-_ç() ]{1,30}")) {throw new MyException("el apellido no es valido");}
-         return apellido;
+
+    private String validarNombre(String nombre) throws MyException {
+        if (!nombre.matches("[a-zA-Z0-9ñáéíóúÁÉÍÓÚñÑ: \\\"-_ç() ]{1,30}")) {
+            throw new MyException("el nombre no es valido");
+        }
+        return nombre;
     }
+
+    private String validarApellido(String apellido) throws MyException {
+        if (!apellido.matches("[a-zA-Z0-9ñáéíóúÁÉÍÓÚñÑ: \\\"-_ç() ]{1,30}")) {
+            throw new MyException("el apellido no es valido");
+        }
+        return apellido;
+    }
+
     public String getIdDirector() {
         return idDirector;
     }
@@ -57,9 +66,8 @@ public class Director implements Serializable {
     public String toString() {
         return idDirector + " - " + nombre + " " + apellido;
     }
-    
-     // compara dos directores.
 
+    // compara dos directores.
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -71,7 +79,8 @@ public class Director implements Serializable {
         Director other = (Director) obj;
         return idDirector != null && idDirector.equals(other.idDirector);
     }
-     //Genera el hash code basado en el id del director
+    //Genera el hash code basado en el id del director
+
     @Override
     public int hashCode() {
         return idDirector != null ? idDirector.hashCode() : 0;

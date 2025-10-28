@@ -6,11 +6,16 @@ package com.mycompany.modelo;
 
 import com.mycompany.excepciones.MyException;
 import java.io.Serializable;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author jorge
  */
+@XmlRootElement(name = "director")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Director implements Serializable {
 
     private String idDirector, nombre, apellido;

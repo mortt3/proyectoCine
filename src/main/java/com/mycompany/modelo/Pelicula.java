@@ -7,11 +7,16 @@ package com.mycompany.modelo;
 import com.mycompany.excepciones.MyException;
 import java.io.Serializable;
 import java.util.List;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author jorge
  */
+@XmlRootElement(name = "pelicula")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Pelicula implements Serializable {
 
     private String idPeli, titulo, genero;

@@ -224,7 +224,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     private void btnImportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportarActionPerformed
         // TODO add your handling code here:
-        String[] opciones = {"Actores", "Directores", "Películas"};
+        String[] opciones = { "Películas"};
         int seleccion = JOptionPane.showOptionDialog(this,
                 "¿Qué deseas importar?",
                 "Importar datos",
@@ -250,60 +250,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             int formato = opcionFormato(); // ahora devuelve el valor correctamente
 
             switch (seleccion) {
-                case 0: // Actores
-                    switch (formato) {
-                        case 0: // .txt
-                            gestorActores.importarActores(archivo.getAbsolutePath());
-                            JOptionPane.showMessageDialog(this, "Actores importados correctamente.");
-                            break;
-                        case 1: // Binario
-                            gestorActores.importarActoresBinario(archivo.getAbsolutePath());
-                            JOptionPane.showMessageDialog(this, "Actores importados correctamente.");
-                            break;
-
-                        case 2: // DOM
-                            gestorActores.importarActoresDOM(archivo.getAbsolutePath());
-                            JOptionPane.showMessageDialog(this, "Actores importados correctamente (DOM).");
-                            break;
-
-                        case 3: //SAX
-                            gestorActores.importarActoresSAX(archivo.getAbsolutePath());
-                            JOptionPane.showMessageDialog(this, "Actores importados correctamente (SAX).");
-                            break;
-
-                        default:
-                            JOptionPane.showMessageDialog(this, "Selección de formato no válida.");
-                            break;
-                    }
-                    break;
-
-                case 1: // Directores
-                    switch (formato) {
-                        case 0:
-                            gestorDirectores.importarDirectores(archivo.getAbsolutePath());
-                            JOptionPane.showMessageDialog(this, "Directores importados correctamente.");
-                            break;
-                        case 1:
-                            gestorDirectores.importarDirectoresBinario(archivo.getAbsolutePath());
-                            JOptionPane.showMessageDialog(this, "Directores importados correctamente.");
-                            break;
-
-                        case 2:
-                            gestorDirectores.importarDirectoresDOM(archivo.getAbsolutePath());
-                            JOptionPane.showMessageDialog(this, "Directores importados correctamente (DOM).");
-                            break;
-                        case 3:
-                            gestorDirectores.importarDirectoresSAX(archivo.getAbsolutePath());
-                            JOptionPane.showMessageDialog(this, "Directores importados correctamente (SAX).");
-                            break;
-
-                        default:
-                            JOptionPane.showMessageDialog(this, "Selección de formato no válida.");
-                            break;
-                    }
-                    break;
-
-                case 2: // Películas
+                case 0: // Películas
                     switch (formato) {
                         case 0:
                             gestorPeliculas.importarPeliculas(
@@ -337,6 +284,15 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                             );
                             JOptionPane.showMessageDialog(this, "Películas importadas correctamente (SAX).");
                             break;
+                            
+                        case 4:
+                            gestorPeliculas.importarPeliculasJAXB(
+                                    archivo.getAbsolutePath(),
+                                    gestorDirectores,
+                                    gestorActores
+                            );
+                            JOptionPane.showMessageDialog(this, "Películas importadas correctamente (SAX).");
+                            break;
                         default:
                             JOptionPane.showMessageDialog(this, "Selección de formato no válida.");
                             break;
@@ -359,7 +315,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private int opcionFormato() throws HeadlessException {
         // Actores
 
-        String[] opcionFormato = {".txt", "binario", "DOM" , "SAX"};
+        String[] opcionFormato = {".txt", "binario", "DOM" , "SAX","JAXB"};
         int formato = JOptionPane.showOptionDialog(this,
                 "¿Qué deseas importar?",
                 "",
@@ -373,7 +329,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     private void btnExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarActionPerformed
         // TODO add your handling code here:
-        String[] opciones = {"Texto", "Binario", "DOM"};
+        String[] opciones = {"Texto", "Binario", "DOM","JAXB"};
         int seleccion = JOptionPane.showOptionDialog(this,
                 "¿como deseas exportar?",
                 "",
@@ -409,6 +365,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     
                 case 2:
                     gestorPeliculas.exportarPeliculasDOM(archivo.getAbsolutePath());
+                    JOptionPane.showMessageDialog(this, "Peliculas exportadas correctamente.");
+                    break;
+                case 3:
+                    gestorPeliculas.exportarPeliculasJAXB(archivo.getAbsolutePath());
                     JOptionPane.showMessageDialog(this, "Peliculas exportadas correctamente.");
                     break;
 

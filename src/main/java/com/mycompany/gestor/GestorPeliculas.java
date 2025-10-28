@@ -6,6 +6,9 @@ package com.mycompany.gestor;
 
 import com.mycompany.excepciones.MyException;
 import com.mycompany.modelo.*;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.EOFException;
@@ -21,13 +24,11 @@ import java.io.File;
 
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -106,6 +107,16 @@ public class GestorPeliculas {
     // litado de películas almacenadas.
     public List<Pelicula> getPeliculas() throws MyException {
         return gestor.leerLista();
+    }
+
+    //ver si esxiste la pelicula
+    private boolean existePelicula(String titulo) throws MyException {
+        for (Pelicula p : getPeliculas()) {  // usamos tu getPeliculas()
+            if (p.getTitulo().equalsIgnoreCase(titulo)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -206,12 +217,12 @@ public class GestorPeliculas {
                             Pelicula pelicula = new Pelicula(idPeli, titulo, genero, director, actores);
                             peliculas.add(pelicula);
                         } catch (MyException e) {
-                            System.out.println("No se pudo crear película " + idPeli + ": " + e.getMessage());
+                            System.out.println("No se pudo crear película " + idPeli + e.getMessage());
                         }
                     }
 
                 } catch (Exception e) {
-                    System.out.println("Error en línea: " + linea + " -> " + e.getMessage());
+                    System.out.println("Error en línea: " + linea + " " + e.getMessage());
                 }
             }
 
@@ -276,7 +287,7 @@ public class GestorPeliculas {
                         }
                     }
 
-                    // === Crear nueva película con los objetos actualizados ===
+                    // Crear nueva película con los objetos actualizados
                     Pelicula nuevaPeli = new Pelicula(
                             p.getIdPeli(),
                             p.getTitulo(),
@@ -302,9 +313,7 @@ public class GestorPeliculas {
         }
     }
 
-    public void importarPeliculasDOM(String ruta,
-            GestorDirectores gestorDirectores,
-            GestorActores gestorActores) throws MyException {
+    public void importarPeliculasDOM(String ruta, GestorDirectores gestorDirectores, GestorActores gestorActores) throws MyException {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
@@ -375,42 +384,41 @@ public class GestorPeliculas {
         }
     }
 
-    public void importarPeliculasSAX(String ruta,
-            GestorDirectores gestorDirectores,
-            GestorActores gestorActores) throws MyException {
-         try {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser saxParser = factory.newSAXParser();
+    public void importarPeliculasSAX(String ruta, GestorDirectores gestorDirectores, GestorActores gestorActores) throws MyException {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
 
-        List<Pelicula> peliculas = new ArrayList<>();
+            List<Pelicula> peliculas = new ArrayList<>();
 
-        DefaultHandler handler = new DefaultHandler() {
+            DefaultHandler handler = new DefaultHandler() {
 
-            private StringBuilder contenido = new StringBuilder();
+                private StringBuilder contenido = new StringBuilder();
 
-            private String idPeli, titulo, genero;
-            private Director directorActual;
-            private String idDirector, nombreDirector, apellidoDirector;
-            private List<Actor> actoresActuales = new ArrayList<>();
-            private String idActor, nombreActor;
-            private int edadActor;
+                private String idPeli, titulo, genero;
+                private Director directorActual;
+                private String idDirector, nombreDirector, apellidoDirector;
+                private List<Actor> actoresActuales = new ArrayList<>();
+                private String idActor, nombreActor;
+                private int edadActor;
 
                 public void startElement(String uri, String localName, String qName, org.xml.sax.Attributes attributes) {
                     // Limpiar el contenido al iniciar un nuevo elemento
                     contenido.setLength(0);
                     //si es pelicula se reinician los actores
-                    if(qName.equalsIgnoreCase("pelicula")){
+                    if (qName.equalsIgnoreCase("pelicula")) {
                         actoresActuales = new ArrayList<>();
                         directorActual = null;
-                        idPeli= null;
-                        titulo= null;
-                        genero= null;
+                        idPeli = null;
+                        titulo = null;
+                        genero = null;
                     }
                 }
-                
+
                 public void characters(char[] ch, int start, int length) {
                     contenido.append(ch, start, length);
                 }
+
                 public void endElement(String uri, String localName, String qName) {
                     try {
                         switch (qName) {
@@ -428,38 +436,40 @@ public class GestorPeliculas {
 
                                 break;
                             case "nombre":
-                               if(directorActual == null){
-                                   nombreDirector = contenido.toString().trim();
-                                 } else{ nombreActor = contenido.toString().trim();}
+                                if (directorActual == null) {
+                                    nombreDirector = contenido.toString().trim();
+                                } else {
+                                    nombreActor = contenido.toString().trim();
+                                }
 
                                 break;
                             case "apellido":
                                 apellidoDirector = contenido.toString().trim();
                                 break;
                             case "director":
-                                try{
+                                try {
                                     directorActual = new Director(idDirector, nombreDirector, apellidoDirector);
                                     gestorDirectores.aniadirDirector(directorActual);
-                                }catch(MyException ex){
-                                    System.out.println("No se pudo crear director: "+ ex.getMessage());
+                                } catch (MyException ex) {
+                                    System.out.println("No se pudo crear director: " + ex.getMessage());
                                 }
                                 break;
                             case "idActor":
                                 idActor = contenido.toString().trim();
                                 break;
                             case "edad":
-                                try{
+                                try {
                                     edadActor = Integer.parseInt(contenido.toString().trim());
                                     if (edadActor == 0) {
                                         throw new MyException("La edad no puede ser negativa");
                                     }
                                 } catch (NumberFormatException ex) {
-                                     throw new MyException( "Edad inválida para actor" );
+                                    throw new MyException("Edad inválida para actor");
                                 }
-                               
+
                                 break;
                             case "actor":
-                                try{
+                                try {
                                     Actor actor = new Actor(idActor, nombreActor, edadActor);
                                     gestorActores.aniadirActor(actor);
                                     actoresActuales.add(actor);
@@ -472,7 +482,8 @@ public class GestorPeliculas {
                                     Pelicula pelicula = new Pelicula(idPeli, titulo, genero, directorActual, actoresActuales);
                                     peliculas.add(pelicula);
                                 } catch (MyException ex) {
-                                    throw new MyException("No se pudo crear película: " + ex.getMessage());}
+                                    throw new MyException("No se pudo crear película: " + ex.getMessage());
+                                }
                                 break;
                         }
                     } catch (MyException ex) {
@@ -608,7 +619,6 @@ public class GestorPeliculas {
                 }
 
                 // Añadir la película al elemento raíz
-
                 root.appendChild(peliculaElem);
             }
 
@@ -622,7 +632,111 @@ public class GestorPeliculas {
         } catch (Exception e) {
             throw new MyException("Error al exportar películas con DOM: " + e.getMessage());
         }
-        
+
+    }
+
+    public void exportarPeliculasJAXB(String ruta) throws MyException {
+        try {
+            // Crear el contexto con la clase raíz
+            JAXBContext context = JAXBContext.newInstance(ListaPeliculasJAXB.class);
+
+            // Crear marshaller (para escribir XML)
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            // Obtener películas actuales del fichero
+            List<Pelicula> peliculas = getPeliculas();
+
+            // Envolverlas en el contenedor
+            ListaPeliculasJAXB listaPeliculas = new ListaPeliculasJAXB(peliculas);
+
+            // Guardar en archivo XML
+            marshaller.marshal(listaPeliculas, new File(ruta));
+
+        } catch (Exception e) {
+            throw new MyException("Error al exportar películas con JAXB: " + e.getMessage());
+        }
+    }
+    
+    public void importarPeliculasJAXB(String ruta,
+            GestorDirectores gestorDirectores,
+            GestorActores gestorActores) throws MyException {
+        try {
+            //Crear el JAXB y el unmarshaller
+            JAXBContext context = JAXBContext.newInstance(ListaPeliculasJAXB.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+
+            //   Leer el archivo XML
+            ListaPeliculasJAXB lista = (ListaPeliculasJAXB) unmarshaller.unmarshal(new File(ruta));
+
+            //Obtener las listas actuales
+            List<Director> directoresActuales = gestorDirectores.getDirectores();
+            List<Actor> actoresActuales = gestorActores.getActores();
+
+            //Recorrer las películas del XML
+            for (Pelicula p : lista.getPeliculas()) {
+
+                //DIRECTOR
+                Director directorImportado = p.getDirector();
+                if (directorImportado != null) {
+                    Director directorEncontrado = null;
+
+                    //Buscar si ya existe un director igual
+                    for (Director d : directoresActuales) {
+                        if (d.getNombre().equalsIgnoreCase(directorImportado.getNombre())
+                                && d.getApellido().equalsIgnoreCase(directorImportado.getApellido())) {
+                            directorEncontrado = d;
+                            break;
+                        }
+                    }
+
+                    //Si no existe se añade
+                    if (directorEncontrado == null) {
+                        gestorDirectores.aniadirDirector(directorImportado);
+                        directoresActuales.add(directorImportado);
+                        p.setDirector(directorImportado);
+                    } else {
+                        p.setDirector(directorEncontrado);
+                    }
+                }
+
+                //ACTORES
+                List<Actor> actoresFinales = new ArrayList<>();
+
+                for (Actor actorImportado : p.getActores()) {
+                    Actor actorEncontrado = null;
+
+                    //buscar si ya existe el actor
+                    for (Actor a : actoresActuales) {
+                        if (a.getNombre().equalsIgnoreCase(actorImportado.getNombre())) {
+                            actorEncontrado = a;
+                            break;
+                        }
+                    }
+
+                    //si no existe, se añade
+                    if (actorEncontrado == null) {
+                        gestorActores.aniadirActor(actorImportado);
+                        actoresActuales.add(actorImportado);
+                        actoresFinales.add(actorImportado);
+                    } else {
+                        actoresFinales.add(actorEncontrado);
+                    }
+                }
+
+                //Asignar los actores finales
+                p.setActores(actoresFinales);
+
+                //AÑADIR PELÍCULA
+                if (!existePelicula(p.getTitulo())) {
+                    aniadirPelicula(p, directoresActuales, actoresActuales);
+                } 
+
+            }
+
+        } catch (Exception e) {
+            throw new MyException("error al importar películas con JAXB: " + e.getMessage());
+        }
     }
 
 }

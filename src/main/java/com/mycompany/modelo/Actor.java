@@ -8,11 +8,16 @@ import com.mycompany.excepciones.MyException;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author jorge
  */
+@XmlRootElement(name = "actor")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Actor implements Serializable {
 
     private String idActor, nombre;

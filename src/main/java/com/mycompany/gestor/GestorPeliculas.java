@@ -21,12 +21,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.io.File;
+import java.sql.*;
+import java.util.HashSet;
 
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.transform.Transformer;
@@ -43,6 +46,11 @@ import org.w3c.dom.Node;
 public class GestorPeliculas {
 
     private final GestorFicheros<Pelicula> gestor;
+// Dentro de la clase GestorPeliculas
+    private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/cine?serverTimezone=UTC";
+    private static final String USER = "root";
+    private static final String PASS = "";
 
     public GestorPeliculas() throws MyException {
         gestor = new GestorFicheros<>("peliculas.dat");
@@ -495,10 +503,10 @@ public class GestorPeliculas {
             // Guardar todas las películas leídas y evitar duplicados
             List<Pelicula> peliculasSinDuplicados = new ArrayList<>();
             for (Pelicula p : peliculas) {
-                if (!gestor.leerLista().contains(p)) {
-                    gestor.aniadir(p);
-                    peliculasSinDuplicados.add(p);
-                }
+
+                gestor.aniadir(p);
+                peliculasSinDuplicados.add(p);
+
             }
             gestor.guardarLista(peliculasSinDuplicados);
             System.out.println(" Peliculas importadas correctamente con SAX  ");
@@ -657,7 +665,7 @@ public class GestorPeliculas {
             throw new MyException("Error al exportar películas con JAXB: " + e.getMessage());
         }
     }
-    
+
     public void importarPeliculasJAXB(String ruta,
             GestorDirectores gestorDirectores,
             GestorActores gestorActores) throws MyException {
@@ -730,7 +738,7 @@ public class GestorPeliculas {
                 //AÑADIR PELÍCULA
                 if (!existePelicula(p.getTitulo())) {
                     aniadirPelicula(p, directoresActuales, actoresActuales);
-                } 
+                }
 
             }
 
@@ -739,4 +747,405 @@ public class GestorPeliculas {
         }
     }
 
+    /**
+     * Exporta las películas a una base de datos SQLite. Crea la BD si no existe
+     * y una tabla llamada 'peliculas'.
+     */
+    public void exportarPeliculasSQLite(String rutaDb) throws MyException {
+        Connection conn = null;
+        try {
+            // Conexión con SQLite (se crea si no existe)
+            conn = DriverManager.getConnection("jdbc:sqlite:" + rutaDb);
+
+            // Crear tabla si no existe
+            String sqlCrear = """
+                CREATE TABLE IF NOT EXISTS peliculas (
+                    idPeli TEXT PRIMARY KEY,
+                    titulo TEXT NOT NULL,
+                    genero TEXT,
+                    idDirector TEXT,
+                    directorNombre TEXT,
+                    directorApellido TEXT,
+                    actores TEXT
+                );
+            """;
+            conn.createStatement().execute(sqlCrear);
+
+            // Limpiar la tabla antes de exportar
+            conn.createStatement().execute("DELETE FROM peliculas;");
+
+            // Insertar los datos
+            String sqlInsert = """
+                INSERT INTO peliculas (idPeli, titulo, genero, idDirector, directorNombre, directorApellido, actores)
+                VALUES (?, ?, ?, ?, ?, ?, ?);
+            """;
+            PreparedStatement ps = conn.prepareStatement(sqlInsert);
+
+            for (Pelicula p : getPeliculas()) {
+                StringBuilder actores = new StringBuilder();
+                for (Actor a : p.getActores()) {
+                    if (actores.length() > 0) {
+                        actores.append("|");
+                    }
+                    actores.append(a.getIdActor()).append(",").append(a.getNombre()).append(",").append(a.getEdad());
+                }
+
+                ps.setString(1, p.getIdPeli());
+                ps.setString(2, p.getTitulo());
+                ps.setString(3, p.getGenero());
+                ps.setString(4, p.getDirector().getIdDirector());
+                ps.setString(5, p.getDirector().getNombre());
+                ps.setString(6, p.getDirector().getApellido());
+                ps.setString(7, actores.toString());
+                ps.executeUpdate();
+            }
+
+            System.out.println("Películas exportadas correctamente a SQLite: " + rutaDb);
+
+        } catch (Exception e) {
+            throw new MyException("Error al exportar películas a SQLite: " + e.getMessage());
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Importa las películas desde una base de datos SQLite. Carga los datos en
+     * el gestor actual.
+     */
+    public void importarPeliculasSQLite(String rutaDb,
+            GestorDirectores gestorDirectores,
+            GestorActores gestorActores) throws MyException {
+        Connection conn = null;
+        List<Pelicula> peliculas = new ArrayList<>();
+
+        try {
+            conn = DriverManager.getConnection("jdbc:sqlite:" + rutaDb);
+            ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM peliculas;");
+
+            while (rs.next()) {
+                String idPeli = rs.getString("idPeli");
+                String titulo = rs.getString("titulo");
+                String genero = rs.getString("genero");
+                String idDirector = rs.getString("idDirector");
+                String nombreDir = rs.getString("directorNombre");
+                String apellidoDir = rs.getString("directorApellido");
+
+                // Buscar o crear director
+                Director director = null;
+                for (Director d : gestorDirectores.getDirectores()) {
+                    if (d.getIdDirector().equalsIgnoreCase(idDirector)) {
+                        director = d;
+                        break;
+                    }
+                }
+                if (director == null) {
+                    director = new Director(idDirector, nombreDir, apellidoDir);
+                    gestorDirectores.aniadirDirector(director);
+                }
+
+                // Actores
+                List<Actor> actores = new ArrayList<>();
+                String[] listaActores = rs.getString("actores").split("\\|");
+                for (String info : listaActores) {
+                    String[] datos = info.split(",");
+                    if (datos.length < 3) {
+                        continue;
+                    }
+
+                    String idActor = datos[0];
+                    String nombreActor = datos[1];
+                    int edad = Integer.parseInt(datos[2]);
+
+                    Actor actor = null;
+                    for (Actor a : gestorActores.getActores()) {
+                        if (a.getIdActor().equalsIgnoreCase(idActor)) {
+                            actor = a;
+                            break;
+                        }
+                    }
+                    if (actor == null) {
+                        actor = new Actor(idActor, nombreActor, edad);
+                        gestorActores.aniadirActor(actor);
+                    }
+
+                    actores.add(actor);
+                }
+
+                Pelicula p = new Pelicula(idPeli, titulo, genero, director, actores);
+                peliculas.add(p);
+            }
+
+            gestor.guardarLista(peliculas);
+            System.out.println("Películas importadas correctamente desde SQLite: " + rutaDb);
+
+        } catch (Exception e) {
+            throw new MyException("Error al importar películas desde SQLite: " + e.getMessage());
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Exporta la lista completa de películas, directores y actores a una base
+     * de datos MySQL. Usa transacciones para asegurar la integridad de los
+     * datos.
+     *
+     * @throws MyException si ocurre un error con la conexión o las operaciones
+     * SQL.
+     */
+    public void exportarPeliculasMySQL() throws MyException {
+        Connection conn = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/cine?serverTimezone=UTC";
+            String user = "root";
+            String password = "";
+            conn = DriverManager.getConnection(url, user, password);
+            conn.setAutoCommit(false); // Iniciar transacción
+
+            //  Definición y creación de tablas
+            // Tabla Directores
+            String sqlCrearDirectores = """
+                CREATE TABLE IF NOT EXISTS directores (
+                    idDirector VARCHAR(50) PRIMARY KEY,
+                    nombre VARCHAR(100) NOT NULL,
+                    apellido VARCHAR(100)
+                );
+            """;
+            conn.createStatement().execute(sqlCrearDirectores);
+
+            // Tabla Actores
+            String sqlCrearActores = """
+                CREATE TABLE IF NOT EXISTS actores (
+                    idActor VARCHAR(50) PRIMARY KEY,
+                    nombre VARCHAR(100) NOT NULL,
+                    edad INT
+                );
+            """;
+            conn.createStatement().execute(sqlCrearActores);
+
+            // Tabla Peliculas (con claves foráneas simplificadas, solo ID)
+            String sqlCrearPeliculas = """
+                CREATE TABLE IF NOT EXISTS peliculas (
+                    idPeli VARCHAR(50) PRIMARY KEY,
+                    titulo VARCHAR(255) NOT NULL,
+                    genero VARCHAR(100),
+                    idDirector VARCHAR(50)
+                    -- FOREIGN KEY (idDirector) REFERENCES directores(idDirector) ON DELETE CASCADE
+                );
+            """;
+            conn.createStatement().execute(sqlCrearPeliculas);
+
+            // Tabla intermedia para Actores-Peliculas (Relación N:M)
+            String sqlCrearPeliActor = """
+                CREATE TABLE IF NOT EXISTS pelicula_actor (
+                    idPeli VARCHAR(50),
+                    idActor VARCHAR(50),
+                    PRIMARY KEY (idPeli, idActor)
+                    -- FOREIGN KEY (idPeli) REFERENCES peliculas(idPeli) ON DELETE CASCADE,
+                    -- FOREIGN KEY (idActor) REFERENCES actores(idActor) ON DELETE CASCADE
+                );
+            """;
+            conn.createStatement().execute(sqlCrearPeliActor);
+
+            //  Limpiar las tablas existentes antes de la inserción
+            conn.createStatement().execute("DELETE FROM pelicula_actor;");
+            conn.createStatement().execute("DELETE FROM peliculas;");
+            conn.createStatement().execute("DELETE FROM directores;");
+            conn.createStatement().execute("DELETE FROM actores;");
+
+            // Sets para almacenar IDs únicos y evitar duplicados en la BD
+            Set<String> directoresGuardados = new HashSet<>();
+            Set<String> actoresGuardados = new HashSet<>();
+
+            // Preparar sentencias SQL para inserción
+            String sqlInsertDirector = "INSERT INTO directores (idDirector, nombre, apellido) VALUES (?, ?, ?);";
+            String sqlInsertActor = "INSERT INTO actores (idActor, nombre, edad) VALUES (?, ?, ?);";
+            String sqlInsertPelicula = "INSERT INTO peliculas (idPeli, titulo, genero, idDirector) VALUES (?, ?, ?, ?);";
+            String sqlInsertPeliActor = "INSERT INTO pelicula_actor (idPeli, idActor) VALUES (?, ?);";
+
+            PreparedStatement psDirector = conn.prepareStatement(sqlInsertDirector);
+            PreparedStatement psActor = conn.prepareStatement(sqlInsertActor);
+            PreparedStatement psPelicula = conn.prepareStatement(sqlInsertPelicula);
+            PreparedStatement psPeliActor = conn.prepareStatement(sqlInsertPeliActor);
+
+            // Iterar sobre las películas y exportar todos los datos
+            for (Pelicula p : getPeliculas()) {
+
+                // Director
+                if (p.getDirector() != null && !directoresGuardados.contains(p.getDirector().getIdDirector())) {
+                    psDirector.setString(1, p.getDirector().getIdDirector());
+                    psDirector.setString(2, p.getDirector().getNombre());
+                    psDirector.setString(3, p.getDirector().getApellido());
+                    psDirector.executeUpdate();
+                    directoresGuardados.add(p.getDirector().getIdDirector());
+                }
+
+                // Película
+                psPelicula.setString(1, p.getIdPeli());
+                psPelicula.setString(2, p.getTitulo());
+                psPelicula.setString(3, p.getGenero());
+                psPelicula.setString(4, p.getDirector().getIdDirector());
+                psPelicula.executeUpdate();
+
+                // Actores y Tabla de relación
+                for (Actor a : p.getActores()) {
+                    // Actor (solo inserta si no se ha guardado ya)
+                    if (!actoresGuardados.contains(a.getIdActor())) {
+                        psActor.setString(1, a.getIdActor());
+                        psActor.setString(2, a.getNombre());
+                        psActor.setInt(3, a.getEdad());
+                        psActor.executeUpdate();
+                        actoresGuardados.add(a.getIdActor());
+                    }
+
+                    // Relación Película-Actor
+                    psPeliActor.setString(1, p.getIdPeli());
+                    psPeliActor.setString(2, a.getIdActor());
+                    psPeliActor.executeUpdate();
+                }
+            }
+
+            conn.commit(); // Confirmar todos los cambios
+
+        } catch (Exception e) {
+            if (conn != null) {
+                try {
+                    conn.rollback(); 
+                } catch (SQLException ex) {
+                   
+                }
+            }
+            throw new MyException("Error al exportar la colección completa a MySQL: " + e.getMessage());
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // ... (dentro de GestorPeliculas.java)
+    /**
+     * Importa todas las películas, directores y actores desde las tablas MySQL
+     * y actualiza los gestores locales (Director y Actor).
+     *
+     * @param gestorDirectores Gestor local de directores
+     * @param gestorActores Gestor local de actores
+     */
+    public void importarPeliculasMySQL(GestorDirectores gestorDirectores, GestorActores gestorActores) throws MyException {
+        Connection conn = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            String url = "jdbc:mysql://localhost:3306/cine?serverTimezone=UTC";
+            String user = "root";
+            String password = "";
+            conn = DriverManager.getConnection(url, user, password);
+
+            List<Pelicula> peliculas = new ArrayList<>();
+            // Mapas para almacenar directores y actores y evitar recrearlos
+            // al procesar cada pelicula.
+            java.util.Map<String, Director> mapaDirectores = new java.util.HashMap<>();
+            java.util.Map<String, Actor> mapaActores = new java.util.HashMap<>();
+
+            //  Importar todos los Directores
+            ResultSet rsDirectores = conn.createStatement().executeQuery("SELECT * FROM directores;");
+            while (rsDirectores.next()) {
+                Director d = new Director(
+                        rsDirectores.getString("idDirector"),
+                        rsDirectores.getString("nombre"),
+                        rsDirectores.getString("apellido")
+                );
+                mapaDirectores.put(d.getIdDirector(), d);
+                // Si el director no existe localmente, añadirlo
+                if (gestorDirectores.buscarDirectorPorId(d.getIdDirector()) == null) {
+                    gestorDirectores.aniadirDirector(d);
+                }
+            }
+
+            //  Importar todos los Actores
+            ResultSet rsActores = conn.createStatement().executeQuery("SELECT * FROM actores;");
+            while (rsActores.next()) {
+                Actor a = new Actor(
+                        rsActores.getString("idActor"),
+                        rsActores.getString("nombre"),
+                        rsActores.getInt("edad")
+                );
+                mapaActores.put(a.getIdActor(), a);
+                // Si el actor no existe localmente, añadirlo
+                if (gestorActores.buscarActorPorId(a.getIdActor()) == null) {
+                    gestorActores.aniadirActor(a);
+                }
+            }
+
+            //  Importar todas las Películas y sus Actores
+            ResultSet rsPeliculas = conn.createStatement().executeQuery("SELECT * FROM peliculas;");
+            while (rsPeliculas.next()) {
+                String idPeli = rsPeliculas.getString("idPeli");
+                String idDirector = rsPeliculas.getString("idDirector");
+
+                Director director = mapaDirectores.get(idDirector);
+                if (director == null) {
+                    // Si el director no existe (error de integridad en BD), lo saltamos
+                    System.err.println("Advertencia: Director con ID " + idDirector + " no encontrado para la película " + idPeli);
+                    continue;
+                }
+
+                List<Actor> actores = new ArrayList<>();
+                // Consulta para obtener los actores de esta película
+                String sqlActoresPeli = "SELECT idActor FROM pelicula_actor WHERE idPeli = ?;";
+                PreparedStatement psActoresPeli = conn.prepareStatement(sqlActoresPeli);
+                psActoresPeli.setString(1, idPeli);
+                ResultSet rsPeliActor = psActoresPeli.executeQuery();
+
+                while (rsPeliActor.next()) {
+                    String idActor = rsPeliActor.getString("idActor");
+                    Actor actor = mapaActores.get(idActor);
+                    if (actor != null) {
+                        actores.add(actor);
+                    }
+                }
+
+                Pelicula p = new Pelicula(
+                        idPeli,
+                        rsPeliculas.getString("titulo"),
+                        rsPeliculas.getString("genero"),
+                        director,
+                        actores
+                );
+                peliculas.add(p);
+            }
+
+            // Guardar la nueva lista de películas localmente (sobrescribe la anterior)
+            this.gestor.guardarLista(peliculas);
+            System.out.println("Colección completa importada correctamente desde MySQL. Actores y Directores locales actualizados.");
+
+        } catch (Exception e) {
+            throw new MyException("Error al importar la colección completa desde MySQL: " + e.getMessage());
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

@@ -47,6 +47,15 @@ public class GestorDirectores {
         gestor.aniadir(d);
     }
 
+    public Director buscarDirectorPorId(String id) throws MyException {
+        for (Director d : getDirectores()) {
+            if (d.getIdDirector().equalsIgnoreCase(id)) {
+                return d;
+            }
+        }
+        return null;
+    }
+
     /**
      * Elimina un director del archivo.
      *
@@ -151,8 +160,9 @@ public class GestorDirectores {
 
     /**
      * Importar directores desde XML usando DOM.
+     *
      * @param ruta del archivo XML
-     * @throws MyException 
+     * @throws MyException
      */
     public void importarDirectoresDOM(String ruta) throws MyException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -188,6 +198,7 @@ public class GestorDirectores {
             ex.printStackTrace();
         }
     }
+
     /**
      * Importar directores desde XML usando SAX.
      *
@@ -195,7 +206,7 @@ public class GestorDirectores {
      * @throws MyException
      */
 
-     //otra forma de importar con SAX usando el handler
+    //otra forma de importar con SAX usando el handler
     public void importarDirectoresSAX(String ruta) throws MyException {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();

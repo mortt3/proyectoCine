@@ -224,7 +224,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     private void btnImportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportarActionPerformed
         // TODO add your handling code here:
-        String[] opciones = { "Películas"};
+        String[] opciones = {"Películas"};
         int seleccion = JOptionPane.showOptionDialog(this,
                 "¿Qué deseas importar?",
                 "Importar datos",
@@ -266,7 +266,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                                     gestorActores);
                             JOptionPane.showMessageDialog(this, "Películas importadas correctamente.");
                             break;
-                        
+
                         case 2:
                             gestorPeliculas.importarPeliculasDOM(
                                     archivo.getAbsolutePath(),
@@ -275,7 +275,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                             );
                             JOptionPane.showMessageDialog(this, "Películas importadas correctamente (DOM).");
                             break;
-                        
+
                         case 3:
                             gestorPeliculas.importarPeliculasSAX(
                                     archivo.getAbsolutePath(),
@@ -284,14 +284,22 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                             );
                             JOptionPane.showMessageDialog(this, "Películas importadas correctamente (SAX).");
                             break;
-                            
+
                         case 4:
                             gestorPeliculas.importarPeliculasJAXB(
                                     archivo.getAbsolutePath(),
                                     gestorDirectores,
                                     gestorActores
                             );
-                            JOptionPane.showMessageDialog(this, "Películas importadas correctamente (SAX).");
+                            JOptionPane.showMessageDialog(this, "Películas importadas correctamente (JAXB).");
+                            break;
+                        case 5:
+                            gestorPeliculas.importarPeliculasSQLite(archivo.getAbsolutePath(), gestorDirectores, gestorActores);
+                            JOptionPane.showMessageDialog(this, "Películas importadas correctamente (SQLite).");
+                            break;
+                        case 6:
+                            gestorPeliculas.importarPeliculasMySQL(gestorDirectores, gestorActores);
+                            JOptionPane.showMessageDialog(this, "Películas importadas correctamente desde MySQL.");
                             break;
                         default:
                             JOptionPane.showMessageDialog(this, "Selección de formato no válida.");
@@ -315,7 +323,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private int opcionFormato() throws HeadlessException {
         // Actores
 
-        String[] opcionFormato = {".txt", "binario", "DOM" , "SAX","JAXB"};
+        String[] opcionFormato = {".txt", "binario", "DOM", "SAX", "JAXB", "SQLite", "SQL"};
         int formato = JOptionPane.showOptionDialog(this,
                 "¿Qué deseas importar?",
                 "",
@@ -329,7 +337,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     private void btnExportarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarActionPerformed
         // TODO add your handling code here:
-        String[] opciones = {"Texto", "Binario", "DOM","JAXB"};
+        String[] opciones = {"Texto", "Binario", "DOM", "JAXB", "SQLite","MySQL"};
         int seleccion = JOptionPane.showOptionDialog(this,
                 "¿como deseas exportar?",
                 "",
@@ -362,7 +370,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     gestorPeliculas.exportarPeliculasBinario(archivo.getAbsolutePath());
                     JOptionPane.showMessageDialog(this, "Peliculas exportadas correctamente.");
                     break;
-                    
+
                 case 2:
                     gestorPeliculas.exportarPeliculasDOM(archivo.getAbsolutePath());
                     JOptionPane.showMessageDialog(this, "Peliculas exportadas correctamente.");
@@ -371,7 +379,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     gestorPeliculas.exportarPeliculasJAXB(archivo.getAbsolutePath());
                     JOptionPane.showMessageDialog(this, "Peliculas exportadas correctamente.");
                     break;
-
+                case 4:
+                    gestorPeliculas.exportarPeliculasSQLite(archivo.getAbsolutePath());
+                    JOptionPane.showMessageDialog(this, "Películas exportadas correctamente (SQLite).");
+                    break;
+                case 5:
+                    gestorPeliculas.exportarPeliculasMySQL();
+                    JOptionPane.showMessageDialog(this, "Películas importadas correctamente desde MySQL.");
+                    break;
                 default:
                     JOptionPane.showMessageDialog(this, "Selección no válida.");
                     break;

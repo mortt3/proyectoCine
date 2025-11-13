@@ -122,14 +122,15 @@ public class GestorActores {
             throw new MyException("Formato de edad inválido en el archivo de actores.");
         }
     }
+
     /**
      * Importar actores desde XML usando DOM.
      *
      * @param ruta del archivo XML
      * @throws MyException
      */
-    public void importarActoresDOM(String ruta) throws MyException { 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(); 
+    public void importarActoresDOM(String ruta) throws MyException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder(); // Crear el constructor de documentos
             Document document = builder.parse(new File(ruta)); // Parsear el archivo XML
@@ -145,7 +146,7 @@ public class GestorActores {
                     try {
                         Element elemento = (Element) nodo; // Convertir el nodo a elemento
 
-                        String id = elemento.getElementsByTagName("idActor").item(0).getTextContent(); 
+                        String id = elemento.getElementsByTagName("idActor").item(0).getTextContent();
                         String nombre = elemento.getElementsByTagName("nombre").item(0).getTextContent();
                         int edad = Integer.parseInt(elemento.getElementsByTagName("edad").item(0).getTextContent());
 
@@ -164,73 +165,73 @@ public class GestorActores {
             throw new MyException("Error al importar actores con DOM ");
         }
     }
+
     /**
      * Importar actores desde XML usando SAX.
      *
      * @param ruta del archivo XML
      * @throws MyException
      */
-    
+
     public void importarActoresSAX(String ruta) throws MyException {
-    try {
-        // Crear el parser SAX
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser saxParser = factory.newSAXParser();
+        try {
+            // Crear el parser SAX
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
 
-        List<Actor> actores = new ArrayList<>();
+            List<Actor> actores = new ArrayList<>();
 
-        // Crear el manejador de eventos
-        DefaultHandler handler = new DefaultHandler() {
-            private StringBuilder contenido = new StringBuilder();
-            private String id;
-            private String nombre;
-            private int edad;
+            // Crear el manejador de eventos
+            DefaultHandler handler = new DefaultHandler() {
+                private StringBuilder contenido = new StringBuilder();
+                private String id;
+                private String nombre;
+                private int edad;
 
-            @Override
-            public void startElement(String uri, String localName, String qName, Attributes attributes) {
-                contenido.setLength(0); // limpia el texto anterior
-            }
-
-            @Override
-            public void characters(char[] ch, int start, int length) {
-                contenido.append(ch, start, length);
-            }
-
-            @Override
-            public void endElement(String uri, String localName, String qName) {
-                switch (qName) {
-                    case "idActor":
-                        id = contenido.toString().trim();
-                        break;
-                    case "nombre":
-                        nombre = contenido.toString().trim();
-                        break;
-                    case "edad":
-                        edad = Integer.parseInt(contenido.toString().trim());
-                        break;
-                    case "actor":
-                        try {
-                            actores.add(new Actor(id, nombre, edad));
-                        } catch (MyException e) {
-                            System.out.println("Actor incorrecto");
-                        }
-                        break;
+                @Override
+                public void startElement(String uri, String localName, String qName, Attributes attributes) {
+                    contenido.setLength(0); // limpia el texto anterior
                 }
-            }
-        };
 
-        // Parsear el archivo XML
-        saxParser.parse(new File(ruta), handler);
+                @Override
+                public void characters(char[] ch, int start, int length) {
+                    contenido.append(ch, start, length);
+                }
 
-        // Guardar en el fichero binario
-        gestor.guardarLista(actores);
-        System.out.println(" Actores importados correctamente con SAX  ");
+                @Override
+                public void endElement(String uri, String localName, String qName) {
+                    switch (qName) {
+                        case "idActor":
+                            id = contenido.toString().trim();
+                            break;
+                        case "nombre":
+                            nombre = contenido.toString().trim();
+                            break;
+                        case "edad":
+                            edad = Integer.parseInt(contenido.toString().trim());
+                            break;
+                        case "actor":
+                            try {
+                                actores.add(new Actor(id, nombre, edad));
+                            } catch (MyException e) {
+                                System.out.println("Actor incorrecto");
+                            }
+                            break;
+                    }
+                }
+            };
 
-    } catch (Exception e) {
-        throw new MyException("Error al importar actores con SAX  ");
+            // Parsear el archivo XML
+            saxParser.parse(new File(ruta), handler);
+
+            // Guardar en el fichero binario
+            gestor.guardarLista(actores);
+            System.out.println(" Actores importados correctamente con SAX  ");
+
+        } catch (Exception e) {
+            throw new MyException("Error al importar actores con SAX  ");
+        }
     }
-}
-
 
     /**
      * Exporta la lista de actores (formato: id;nombre;edad)
@@ -247,6 +248,15 @@ public class GestorActores {
         } catch (IOException e) {
             throw new MyException("Error al exportar actores a: " + ruta);
         }
+    }
+
+    public Actor buscarActorPorId(String id) throws MyException {
+        for (Actor a : getActores()) {
+            if (a.getIdActor().equalsIgnoreCase(id)) {
+                return a;
+            }
+        }
+        return null;
     }
 
 }
